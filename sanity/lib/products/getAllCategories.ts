@@ -1,18 +1,13 @@
-import { sanityFetch } from "../live";
+import { client } from "@/sanity/lib/client";
 
-// function to get all categories
-export const getAllCategories = async () => {
-  const ALL_CATEGORIES_QUERY = `
-    *[_type == "category"] | order(name asc)
-  `;
-
-  try {
-    const categories = await sanityFetch({
-      query: ALL_CATEGORIES_QUERY,
-    });
-    return categories.data || [];
-  } catch (error) {
-    console.error("error fetching all categories", error);
-    return [];
-  }
-};
+export async function getAllCategories() {
+  const query = `*[_type == "category"] {
+    _id,
+    name,
+    slug {
+      current
+    }
+  }`;
+  const categories = await client.fetch(query);
+  return categories;
+}

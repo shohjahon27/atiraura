@@ -117,7 +117,9 @@ const handleSearchSubmit = (formData: SearchFormData) => {
         </p>
       </section> */}
     </>
+    
   );
+  
 }
 
 export default Header;

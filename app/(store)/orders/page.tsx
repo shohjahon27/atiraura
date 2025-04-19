@@ -160,16 +160,13 @@ async function Orders() {
                             <div className="flex items-center gap-3 sm:gap-4">
                               {product.image ? (
                                 <div className="relative h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 rounded-md overflow-hidden">
-                                  <Image
-                                    src={imageUrl(product.image).url()}
-                                    alt={product.name ?? "Product Image"}
-                                    className="object-cover"
-                                    width={64}
-                                    height={64}
-                                    onError={() => {
-                                      console.error("Image failed to load");
-                                    }}
-                                  />
+                                 <Image
+                                                     src={item.product.image ? imageUrl(item.product.image).url() : ""}
+                                                     alt={item.product.name ?? "Product image"}
+                                                     className="w-full h-full object-cover rounded-lg border"
+                                                     width={96}
+                                                     height={96}
+                                                   />
                                 </div>
                               ) : (
                                 <div className="h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 rounded-md bg-gray-200 flex items-center justify-center">

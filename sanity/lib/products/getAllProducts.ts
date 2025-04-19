@@ -1,21 +1,18 @@
-import { defineQuery } from "next-sanity";
-import { sanityFetch } from "../live";
+import { client } from "@/sanity/lib/client";
 
-export const getAllProducts = async () => {
- const ALL_PRODUCTS_QUERY = defineQuery (`
-    *[_type == "product"]
-    | order(name asc)
-    `)
-
-    try {
-        // use sanityFetch to send the query
-        const products = await sanityFetch({
-            query: ALL_PRODUCTS_QUERY,
-        });
-        // return the list of the products, or an empty array if none are found
-        return products.data || [];
-    } catch (error) {
-        console.error("Error fetching all products:", error);
-        return [];
-    }
-};
+export async function getAllProducts() {
+  const query = `*[_type == "product"] {
+    _id,
+    name,
+    image,
+    price,
+    slug {
+      current
+    },
+    stock,
+    featured
+  }`;
+  const products = await client.fetch(query);
+  console.log("Fetched products:", products);
+  return products;
+}

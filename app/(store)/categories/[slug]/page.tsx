@@ -5,7 +5,11 @@ import { getProductsByCategory } from "@/sanity/lib/products/getProductsByCatego
 async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
   
-    const products = await getProductsByCategory(slug);
+    const rawProducts = await getProductsByCategory(slug);
+    const products = rawProducts.map((product) => ({
+      ...product,
+      featured: false, // Add a default 'featured' property
+    }));
     const categories = await getAllCategories();
   
     return (
@@ -18,7 +22,7 @@ async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
             .join(" ")}{" "}
           Collection
         </h1>
-        <ProductsView products={products} categories={categories} />
+        <ProductsView products={products} categories={categories} featuredProducts={[]} />
       </div>
     </div>
     )

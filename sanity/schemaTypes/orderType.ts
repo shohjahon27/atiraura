@@ -103,6 +103,7 @@ export const orderType = defineType ({
       
         preview: {
           select: {
+            imageUrl: 'image',
             orderNumber: 'orderNumber',
             customerName: 'customerName',
             totalPrice: 'totalPrice',
