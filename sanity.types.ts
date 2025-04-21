@@ -173,7 +173,6 @@ export type Product = {
     [internalGroqTypeReferenceTo]?: "category";
   }>;
   stock?: number;
-  featured?: boolean;
 };
 
 export type Category = {

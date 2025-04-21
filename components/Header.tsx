@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { PackageIcon, TrolleyIcon } from "@sanity/icons";
 import useBasketStore from "@/sanity/lib/store";
 import { useState } from "react";
+import { FaBars, FaTimes } from "react-icons/fa";
 
 function Header() {
   const { user } = useUser();
@@ -14,6 +15,12 @@ function Header() {
     state.items.reduce((total, item) => total + item.quantity, 0)
   );
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
@@ -35,11 +42,69 @@ const handleSearchSubmit = (formData: SearchFormData) => {
     <>
       {/* Fixed Header */}
       <header className="fixed top-0 left-0 w-full bg-white shadow-md z-50">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="container mx-auto px-5 py-3 flex items-center justify-between">
+          {/* Burger Button (Visible on Mobile) */}
+        <button
+          className="sm:hidden text-gray-800 focus:outline-none cursor-pointer"
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+          >
+          {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+        </button>
           {/* Logo */}
           <Link href="/" className="text-2xl font-bold text-pink-600 hover:opacity-80 transition">
             atiraura
           </Link>
+
+        {/* Navigation Links (Visible on Desktop, Hidden on Mobile unless Menu is Open) */}
+        <nav
+          className={`${
+            isMenuOpen ? "block" : "hidden"
+          } sm:block absolute sm:static top-16 left-0 w-full sm:w-auto bg-white sm:bg-transparent shadow-md sm:shadow-none z-10`}
+        >
+          <ul
+            className={`flex flex-col sm:flex-row sm:space-x-6 px-4 sm:px-0 py-4 sm:py-0 ${
+              isMenuOpen ? "space-y-4" : ""
+            }`}
+          >
+            <li>
+              <Link
+                href="/"
+                className="text-gray-800 hover:text-pink-600 transition-colors text-lg sm:text-base"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/products"
+                className="text-gray-800 hover:text-pink-600 transition-colors text-lg sm:text-base"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Products
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/about"
+                className="text-gray-800 hover:text-pink-600 transition-colors text-lg sm:text-base"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                About
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/contact"
+                className="text-gray-800 hover:text-pink-600 transition-colors text-lg sm:text-base"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Contact
+              </Link>
+            </li>
+          </ul>
+        </nav>
 
           {/* Right Section: Search, Basket, Orders, Sign In/User */}
           <div className="flex items-center space-x-4">

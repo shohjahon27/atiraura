@@ -18,6 +18,7 @@ export default async function StorePage() {
   return (
     <div>
       <BlackFridayBanner />
+
       <ProductsView
         products={products}
         featuredProducts={featuredProducts}

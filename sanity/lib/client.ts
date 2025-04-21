@@ -3,6 +3,8 @@
 import { apiVersion, dataset, projectId } from '../env'
 import { createClient } from '@sanity/client';
 
+
+
 export const client = createClient({
   projectId,
   dataset,
@@ -14,3 +16,11 @@ export const client = createClient({
      :`${process.env.NEXT_PUBLIC_BASE_URL}/studio`,
   }
 })
+
+export const getProducts = async () => {
+  const query = `*[_type == "product"]`;
+  const products = await client.fetch(query);
+  return products;
+};
+
+export default createClient;
