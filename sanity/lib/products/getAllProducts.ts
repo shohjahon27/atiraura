@@ -10,7 +10,10 @@ export async function getAllProducts() {
       current
     },
     stock,
-    featured
+    featured,
+    isNew,
+    description,
+    _createdAt,
   }`;
   const products = await client.fetch(query);
   console.log("Fetched products:", products);

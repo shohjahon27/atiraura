@@ -24,6 +24,7 @@ export default async function StorePage() {
         featuredProducts={featuredProducts}
         categories={categories}
       />
+      {/* <ProductGrid products={filteredProducts} /> */}
     </div>
   );
 }

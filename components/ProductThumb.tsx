@@ -55,6 +55,7 @@ function ProductThumb ({product}: {product:Product}) {
                 </p>
             </div>
             </Link>
+            
         );
         }
 

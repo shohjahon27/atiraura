@@ -103,6 +103,15 @@ const handleSearchSubmit = (formData: SearchFormData) => {
                 Contact
               </Link>
             </li>
+            <li>
+              <Link
+                href="/wishlist"
+                className="text-gray-800 hover:text-pink-600 transition-colors text-lg sm:text-base"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                ❤️ Wishlist
+              </Link>
+            </li>
           </ul>
         </nav>
 

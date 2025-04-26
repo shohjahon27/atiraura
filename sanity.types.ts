@@ -128,10 +128,11 @@ export type Product = {
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    _type: "image";
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    isNew?: boolean; // Added for new product tag
   };
   description?: Array<{
     children?: Array<{

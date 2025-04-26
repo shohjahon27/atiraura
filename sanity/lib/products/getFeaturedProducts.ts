@@ -5,12 +5,13 @@ export async function getFeaturedProducts() {
     _id,
     name,
     image,
+    description,
     price,
     slug {
       current
     },
     stock,
-    featured
+    featured,
   }`;
   const featuredProducts = await client.fetch(query);
   console.log("Fetched featured products:", featuredProducts);
