@@ -5,17 +5,10 @@ import Header from '@/components/Header';
 import { getProducts } from "@/sanity/lib/client";
 import ProductGrid from '@/components/ProductGrid';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Product } from "@/sanity.types";
+
 
 export default function ProductsPage() {
-  interface Product {
-    _id: string;
-    name: string;
-    _type: "product";
-    _createdAt: string;
-    _updatedAt: string;
-    _rev: string;
-    // Add other fields as needed
-  }
 
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);

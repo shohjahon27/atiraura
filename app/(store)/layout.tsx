@@ -36,12 +36,11 @@ export default function RootLayout({
               draggable
               pauseOnHover
               theme="light"
-            />
+              />
         </main>
 
         <SanityLive/>
       <Footer />
-
       </body>
     </html>
     </ClerkProvider>
