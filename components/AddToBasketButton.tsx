@@ -1,7 +1,9 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { Product } from "@/sanity.types";
 import useBasketStore from "@/sanity/lib/store";
+import { toast } from "react-hot-toast";
 
 interface AddToBasketButtonProps {
   product: Product;
@@ -14,12 +16,37 @@ function AddToBasketButton({ product, disabled }: AddToBasketButtonProps) {
 
   const [isClient, setIsClient] = useState(false);
 
-  // Use useEffect to set isClient to true after component mounts
-  // This ensures that the component only renders on the client-side,
-  // preventing hydration errors due to server/client mismatch
+  // Ensure client-side rendering to prevent hydration errors
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const handleAddItem = () => {
+    if (product.stock != null && itemCount >= product.stock) {
+      toast.error("Stokda yetarli mahsulot yo'q!", {
+        position: "top-right",
+        duration: 3000,
+      });
+      return;
+    }
+
+    addItem(product);
+    toast.success(`Mahsulot soni oshirildi: ${itemCount + 1}`, {
+      position: "top-right",
+      duration: 3000,
+    });
+  };
+
+  const handleRemoveItem = () => {
+    if (itemCount > 0) {
+      removeItem(product._id);
+    } else {
+      toast.error("Siz mahsulot sonini tanlamadingiz", {
+        position: "top-right",
+        duration: 3000,
+      });
+    }
+  };
 
   if (!isClient) {
     return null;
@@ -28,7 +55,7 @@ function AddToBasketButton({ product, disabled }: AddToBasketButtonProps) {
   return (
     <div className="flex items-center justify-center space-x-2">
       <button
-        onClick={() => removeItem(product._id)}
+        onClick={handleRemoveItem}
         className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200 ${
           itemCount === 0
             ? "bg-gray-100 cursor-not-allowed"
@@ -44,24 +71,22 @@ function AddToBasketButton({ product, disabled }: AddToBasketButtonProps) {
           –
         </span>
       </button>
-  
+
       <span className="w-8 text-center font-semibold">{itemCount}</span>
 
       <button
-  onClick={() => addItem(product)}
-  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200 ${
-    disabled
-      ? "bg-gray-400 cursor-not-allowed"
-      : "bg-blue-500 hover:bg-blue-600"
-  }`}
-  disabled={disabled}
->
-  <span className="text-xl font-bold text-white">+</span>
-</button>
-
+        onClick={handleAddItem}
+        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200 ${
+          disabled
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-500 hover:bg-blue-600"
+        }`}
+        disabled={disabled}
+      >
+        <span className="text-xl font-bold text-white">+</span>
+      </button>
     </div>
   );
-  
 }
 
 export default AddToBasketButton;

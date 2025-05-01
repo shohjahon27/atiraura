@@ -13,8 +13,8 @@ export const getProductsByCategory = async (categorySlug: string) => {
     const products = await sanityFetch({
       query: PRODUCTS_BY_CATEGORY_QUERY,
       params: {
-        categorySlug,
-      },
+        slug: categorySlug,
+      }
     });
 
     // Return the list of products, or an empty array if none are found
@@ -24,3 +24,5 @@ export const getProductsByCategory = async (categorySlug: string) => {
     return [];
   }
 };
+
+

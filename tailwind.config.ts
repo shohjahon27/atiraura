@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
+import lineClamp from "@tailwindcss/line-clamp";
 import typography from "@tailwindcss/typography";
 
 const config: Config = {
@@ -29,7 +30,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [tailwindcssAnimate, typography],
+  plugins: [tailwindcssAnimate, typography, lineClamp],
 };
 
 export default config;

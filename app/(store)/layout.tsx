@@ -6,6 +6,7 @@ import { SanityLive } from "@/sanity/lib/live"
 import Footer from "@/components/Footer";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import { Toaster } from 'react-hot-toast';
 import 'react-phone-input-2/lib/style.css';
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default function RootLayout({
         <main>
           <Header/>
         {children}
+        <Toaster position="top-center" reverseOrder={false} />
         <ToastContainer
               position="top-right"
               autoClose={3000}

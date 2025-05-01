@@ -5,8 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { imageUrl } from "@/lib/imageUrl";
 import { useWishlistStore } from "@/app/(store)/wishlistStore"; // Import Zustand store
-import { toast } from 'react-toastify'; // Import toast
+// import { toast } from 'react-toastify'; // Import toast
 import 'react-toastify/dist/ReactToastify.css'; // Import the styles for toast
+
+import { toast } from "react-hot-toast"; // <<< ADD THIS LINE
 
 interface ProductGridProps {
   products: Product[];
@@ -15,17 +17,18 @@ interface ProductGridProps {
 }
 
 export default function ProductGrid({ products }: ProductGridProps) {
-  const { items: wishlist, addItem, removeItem } = useWishlistStore(); // Use Zustand store
+  const { items: wishlist, addItem, removeItem } = useWishlistStore();
 
   const toggleWishlist = (productId: string) => {
     if (wishlist.includes(productId)) {
-      removeItem(productId); // Use Zustand's removeItem
-      toast.success('Mahsulot sevimlilardan o\'chirildi😢'); // Toast for removing
+      removeItem(productId);
+      toast.error('Sevimlilardan olib tashlandi😢');
     } else {
-      addItem(productId); // Use Zustand's addItem
-      toast.success('Sevimlilarga qo\'shildi'); // Toast for adding
+      addItem(productId);
+      toast.success('Sevimlilarga qo‘shildi');
     }
   };
+
 
   const isInWishlist = (productId: string) => wishlist.includes(productId);
 
@@ -114,6 +117,13 @@ export default function ProductGrid({ products }: ProductGridProps) {
                           : ""
                       )
                       .join("") || "Izoh mavjud emas"}
+                  </p>
+
+                  {/* STOCK AVAILABLE */}
+                  <p className="text-sm text-gray-500">
+                    {product.stock != null && product.stock > 0
+                      ? `Omborda ${product.stock} dona`
+                      : "Omborda mavjud emas"}
                   </p>
                   <p className="text-lg font-bold text-blue-600">
                     {product.price ? `so'm ${product.price.toFixed(0)}` : "Narxi belgilanmagan"}
