@@ -1,7 +1,7 @@
 // app/api/orders/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { client } from '@/lib/sanity/client';
+import { client } from "@/sanity/lib/client";
 import { v4 as uuidv4 } from 'uuid';
 
 // Define proper types
