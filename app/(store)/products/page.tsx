@@ -6,7 +6,6 @@ import ProductGrid from '@/components/ProductGrid';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Product } from "@/sanity.types";
 import { getAllProducts } from "@/sanity/lib/products/getAllProducts";
-import { getAllCategories } from '@/lib/sanity/products/getAllCategories';
 // Add others as needed
 
 // ... existing code ...
