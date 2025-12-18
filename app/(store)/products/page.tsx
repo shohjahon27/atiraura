@@ -2,10 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import Header from '@/components/Header';
-import { getAllProducts } from '@/lib/sanity/products';
 import ProductGrid from '@/components/ProductGrid';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Product } from "@/sanity.types";
+import { getAllProducts } from '@/lib/sanity/products/getAllProducts';
+import { getAllCategories } from '@/lib/sanity/products/getAllCategories';
+// Add others as needed
+
+// ... existing code ...
 
 
 export default function ProductsPage() {
