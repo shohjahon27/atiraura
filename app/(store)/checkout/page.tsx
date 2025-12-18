@@ -1,11 +1,35 @@
-// import { client } from "@/sanity/lib/client";
+// app/(store)/checkout/page.tsx  (or wherever you define this server action)
 
-// Example using a server action or fetch
-const createOrder = async (formData: {
-  customer: { name: string; phone: string; email?: string; address?: string };
-  items: Array<{ product: data: { items: CartItem[]; total: number; customer: Customer }; name: string; price: number; quantity: number }>;
+'use server';
+
+import { client } from '@/sanity/lib/client';
+
+// Define proper types (adjust according to your actual cart/item structure)
+interface CartItem {
+  product: {
+    _id: string;
+    // add other product fields if needed
+  };
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+interface Customer {
+  name: string;
+  phone: string;
+  email?: string;
+  address?: string;
+}
+
+interface CreateOrderFormData {
+  customer: Customer;
+  items: CartItem[];
   total: number;
-}) => {
+}
+
+// Server Action
+export const createOrder = async (formData: CreateOrderFormData) => {
   'use server';
 
   const { customer, items, total } = formData;
@@ -17,7 +41,7 @@ const createOrder = async (formData: {
     _type: 'order',
     orderNumber,
     customer,
-    items: items.map(item => ({
+    items: items.map((item) => ({
       product: { _ref: item.product._id, _type: 'reference' },
       name: item.name,
       price: item.price,
@@ -33,5 +57,8 @@ const createOrder = async (formData: {
     createdAt: new Date().toISOString(),
   });
 
-  return { orderNumber, total: order.total };
+  return {
+    orderNumber: order.orderNumber,
+    total: order.total,
+  };
 };
