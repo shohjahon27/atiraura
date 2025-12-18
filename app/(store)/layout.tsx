@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import { Toaster } from 'react-hot-toast';
 import 'react-phone-input-2/lib/style.css';
+import { CartProvider } from "@/app/(store)/context/CartContext"; // ← ADD THIS IMPORT
 
 export const metadata: Metadata = {
   title: "atiraura",
@@ -21,30 +22,32 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider dynamic>
-    <html lang="en">
-      <body>
-        <main>
-          <Header/>
-        {children}
-        <Toaster position="top-center" reverseOrder={false} />
-        <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="light"
+      <html lang="en">
+        <body>
+          {/* WRAP EVERYTHING WITH CartProvider */}
+          <CartProvider>
+            <main>
+              <Header/>
+              {children}
+              <Toaster position="top-center" reverseOrder={false} />
+              <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
               />
-        </main>
-
-        <SanityLive/>
-      <Footer />
-      </body>
-    </html>
+            </main>
+            <SanityLive/>
+            <Footer />
+          </CartProvider> {/* ← CLOSE CartProvider HERE */}
+        </body>
+      </html>
     </ClerkProvider>
   );
 }

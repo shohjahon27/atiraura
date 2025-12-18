@@ -1,120 +1,142 @@
-// import { BasketIcon } from "@sanity/icons";
-// import { defineArrayMember, defineField, defineType } from "sanity";
+import { defineType, defineField } from 'sanity';
+import { BasketIcon } from '@sanity/icons';
 
-import { defineType } from "sanity";
+export const orderType = defineType({
+  name: 'order',
+  title: 'Order',
+  type: 'document',
+  icon: BasketIcon,
+  fields: [
+    defineField({
+      name: 'orderNumber',
+      title: 'Order Number',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
+    }),
+    
+    defineField({
+      name: 'customer',
+      title: 'Customer',
+      type: 'object',
+      fields: [
+        defineField({ name: 'name', title: 'Name', type: 'string', validation: (Rule) => Rule.required() }),
+        defineField({ name: 'phone', title: 'Phone', type: 'string', validation: (Rule) => Rule.required() }),
+        defineField({ name: 'email', title: 'Email', type: 'string' }),
+        defineField({ name: 'address', title: 'Address', type: 'text' }),
+      ],
+    }),
 
-
-export const orderType = defineType ({
-        name: 'order',
-        title: 'Order',
-        type: 'document',
-        fields: [
-          {
-            name: 'orderNumber',
-            title: 'Order Number',
-            type: 'string',
-          },
-          {
-            name: 'stripeCheckoutSessionId',
-            title: 'Stripe Checkout Session ID',
-            type: 'string',
-          },
-          {
-            name: 'stripePaymentIntentId',
-            title: 'Stripe Payment Intent ID',
-            type: 'string',
-          },
-          {
-            name: 'stripeCustomerId',
-            title: 'Stripe Customer ID',
-            type: 'string',
-          },
-          {
-            name: 'customerName',
-            title: 'Customer Name',
-            type: 'string',
-          },
-          {
-            name: 'email',
-            title: 'Customer Email',
-            type: 'string',
-          },
-          {
-            name: 'clerkUserId',
-            title: 'Clerk User ID',
-            type: 'string',
-          },
-          {
-            name: 'currency',
-            title: 'Currency',
-            type: 'string',
-          },
-          {
-            name: 'totalPrice',
-            title: 'Total Price',
-            type: 'number',
-          },
-          {
-            name: 'amountDiscount',
-            title: 'Amount Discount',
-            type: 'number',
-          },
-          {
-            name: 'status',
-            title: 'Status',
-            type: 'string',
-            options: {
-              list: [
-                { title: 'Paid', value: 'paid' },
-                { title: 'Pending', value: 'pending' },
-                { title: 'Failed', value: 'failed' },
-              ],
-            },
-          },
-          {
-            name: 'orderDate',
-            title: 'Order Date',
-            type: 'datetime',
-          },
-          {
-            name: 'sanityProducts',
-            title: 'Sanity Products',
-            type: 'array',
-            of: [
-              {
-                type: 'object',
-                fields: [
-                  {
-                    name: 'product',
-                    title: 'Product',
-                    type: 'reference',
-                    to: [{ type: 'product' }],
-                  },
-                  {
-                    name: 'quantity',
-                    title: 'Quantity',
-                    type: 'number',
-                  },
-                ],
-              },
+    defineField({
+      name: 'payment',
+      title: 'Payment',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'method',
+          title: 'Method',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Click.uz', value: 'click' },
+              { title: 'Stripe', value: 'stripe' },
+              { title: 'Cash', value: 'cash' },
             ],
           },
+        }),
+        defineField({
+          name: 'status',
+          title: 'Status',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Pending', value: 'pending' },
+              { title: 'Paid', value: 'paid' },
+              { title: 'Failed', value: 'failed' },
+            ],
+          },
+          initialValue: 'pending',
+        }),
+        // Click fields
+        defineField({ name: 'clickPrepareId', title: 'Click Prepare ID', type: 'number' }),
+        defineField({ name: 'clickTransId', title: 'Click Trans ID', type: 'string' }),
+        defineField({ name: 'clickConfirmId', title: 'Click Confirm ID', type: 'number' }),
+        // Stripe fields
+        defineField({ name: 'stripeCheckoutSessionId', title: 'Stripe Session ID', type: 'string' }),
+        defineField({ name: 'stripePaymentIntentId', title: 'Stripe Payment ID', type: 'string' }),
+      ],
+    }),
+
+    defineField({
+      name: 'items',
+      title: 'Items',
+      type: 'array',
+      of: [{
+        type: 'object',
+        fields: [
+          defineField({ name: 'product', title: 'Product', type: 'reference', to: [{ type: 'product' }] }),
+          defineField({ name: 'name', title: 'Name', type: 'string' }),
+          defineField({ name: 'price', title: 'Price', type: 'number' }),
+          defineField({ name: 'quantity', title: 'Quantity', type: 'number' }),
         ],
-      
-        preview: {
-          select: {
-            imageUrl: 'image',
-            orderNumber: 'orderNumber',
-            customerName: 'customerName',
-            totalPrice: 'totalPrice',
-            currency: 'currency',
-          },
-          prepare({ orderNumber, customerName, totalPrice, currency }) {
-            return {
-              title: `Order #${orderNumber}`,
-              subtitle: `${customerName} - ${totalPrice} ${currency}`,
-            };
-          },
-        }, 
-    }); 
+      }],
+    }),
+
+    defineField({
+      name: 'total',
+      title: 'Total',
+      type: 'number',
+    }),
+
+    defineField({
+      name: 'currency',
+      title: 'Currency',
+      type: 'string',
+      initialValue: 'UZS',
+    }),
+
+    defineField({
+      name: 'status',
+      title: 'Order Status',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Processing', value: 'processing' },
+          { title: 'Shipped', value: 'shipped' },
+          { title: 'Delivered', value: 'delivered' },
+        ],
+      },
+      initialValue: 'processing',
+    }),
+
+    defineField({
+      name: 'createdAt',
+      title: 'Created At',
+      type: 'datetime',
+      initialValue: () => new Date().toISOString(),
+    }),
+
+    defineField({
+      name: 'notes',
+      title: 'Notes',
+      type: 'text',
+    }),
+  ],
+
+  preview: {
+    select: {
+      title: 'orderNumber',
+      customer: 'customer.name',
+      total: 'total',
+      status: 'payment.status',
+    },
+    prepare({ title, customer, total, status }) {
+      return {
+        title: `Order #${title}`,
+        subtitle: `${customer} • ${total?.toLocaleString()} UZS • ${status}`,
+        media: BasketIcon,
+      };
+    },
+  },
+});
+
 export default orderType;

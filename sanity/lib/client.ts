@@ -1,27 +1,13 @@
-// import { createClient } from 'next-sanity'
-
-import { apiVersion, dataset, projectId } from '../env'
 import { createClient } from '@sanity/client';
 
-
-
+// Create the main client
 export const client = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: true, // Set to false if statically generating pages, using ISR or tag-based revalidation
-  token: process.env.NEXT_PUBLIC_SANITY_API_WRITE_TOKEN,
-  stega: {
-    studioUrl: process.env.VERCEL_URL ?
-    `https://${process.env.VERCEL_URL}/studio`
-     :`${process.env.NEXT_PUBLIC_BASE_URL}/studio`,
-  }
-})
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
+  apiVersion: '2024-01-01',
+  useCdn: false,
+  token: process.env.SANITY_API_TOKEN,
+});
 
-export const getProducts = async () => {
-  const query = `*[_type == "product"]`;
-  const products = await client.fetch(query);
-  return products;
-};
-
-export default createClient;
+// For backward compatibility with existing code
+export const sanityClient = client;

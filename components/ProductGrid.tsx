@@ -126,7 +126,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
                       : "Omborda mavjud emas"}
                   </p>
                   <p className="text-lg font-bold text-blue-600">
-                    {product.price ? `so'm ${product.price.toFixed(0)}` : "Narxi belgilanmagan"}
+                     {product.price ? `so'm ${Math.round(product.price).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}` : "Narxi belgilanmagan"}
                   </p>
                 </div>
               </Link>
