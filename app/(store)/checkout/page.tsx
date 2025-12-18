@@ -1,64 +1,34 @@
-// app/(store)/checkout/page.tsx  (or wherever you define this server action)
+// app/(store)/checkout/page.tsx
 
-'use server';
+'use client';
 
-import { client } from '@/sanity/lib/client';
+import { createOrder } from './actions'; // ← adjust path if you put it elsewhere
+// e.g., import { createOrder } from '@/lib/actions/createOrder';
 
-// Define proper types (adjust according to your actual cart/item structure)
-interface CartItem {
-  product: {
-    _id: string;
-    // add other product fields if needed
-  };
-  name: string;
-  price: number;
-  quantity: number;
-}
+// ... your other imports and code
 
-interface Customer {
-  name: string;
-  phone: string;
-  email?: string;
-  address?: string;
-}
+// Example usage in your form handler
+const handleCheckout = async () => {
+  try {
+    const result = await createOrder({
+      customer: {
+        name: 'John Doe',
+        phone: '+998901234567',
+        // email, address optional
+      },
+      items: cartItems, // your cart array
+      total: calculatedTotal,
+    });
 
-interface CreateOrderFormData {
-  customer: Customer;
-  items: CartItem[];
-  total: number;
-}
+    console.log('Order created:', result.orderNumber);
 
-// Server Action
-export const createOrder = async (formData: CreateOrderFormData) => {
-  'use server';
+    // Now redirect to CLICK payment
+    const paymentUrl = `https://my.click.uz/services/pay?service_id=${process.env.NEXT_PUBLIC_CLICK_SERVICE_ID}&merchant_id=${process.env.NEXT_PUBLIC_CLICK_MERCHANT_ID}&merchant_user_id=${process.env.NEXT_PUBLIC_CLICK_MERCHANT_USER_ID}&amount=${result.total.toFixed(2)}&transaction_param=${result.orderNumber}&return_url=${encodeURIComponent('https://your-site.com/checkout/success?order=' + result.orderNumber)}`;
 
-  const { customer, items, total } = formData;
+    window.location.href = paymentUrl;
 
-  // Generate unique order number
-  const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-
-  const order = await client.create({
-    _type: 'order',
-    orderNumber,
-    customer,
-    items: items.map((item) => ({
-      product: { _ref: item.product._id, _type: 'reference' },
-      name: item.name,
-      price: item.price,
-      quantity: item.quantity,
-    })),
-    total,
-    currency: 'UZS',
-    payment: {
-      method: 'click',
-      status: 'pending',
-    },
-    status: 'processing',
-    createdAt: new Date().toISOString(),
-  });
-
-  return {
-    orderNumber: order.orderNumber,
-    total: order.total,
-  };
+  } catch (error) {
+    console.error('Order creation failed:', error);
+    // Show error to user
+  }
 };
