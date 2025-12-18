@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Header from '@/components/Header';
-import { getProducts } from "@/sanity/lib/client";
+import { getAllProducts } from '@/lib/sanity/products';
 import ProductGrid from '@/components/ProductGrid';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Product } from "@/sanity.types";
@@ -19,7 +19,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const allProducts = await getProducts();
+      const allProducts = await getAllProducts();
       setProducts(allProducts);
       setFilteredProducts(allProducts);
     };

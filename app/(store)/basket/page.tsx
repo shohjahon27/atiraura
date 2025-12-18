@@ -96,7 +96,7 @@ const handleCheckout = async () => {
                     {item.product.name}
                   </h2>
                   <p className="text-base text-gray-600 dark:text-gray-300">
-                    Narx: {((item.product.price ?? 0) * item.quantity).toFixed(2)} so'm
+                    Narx: {((item.product.price ?? 0) * item.quantity).toFixed(2)} sum
                   </p>
                 </div>
               </div>
@@ -115,7 +115,7 @@ const handleCheckout = async () => {
             
             {/* Payment Method Selector */}
             <div className="mb-4">
-              <p className="font-medium mb-2">To'lov usuli:</p>
+              <p className="font-medium mb-2">Tulov usuli:</p>
               <div className="flex flex-col gap-2">
                 <label className="flex items-center p-3 border rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
                   <input
@@ -164,7 +164,7 @@ const handleCheckout = async () => {
               <p className="flex justify-between text-2xl font-bold border-t pt-2">
                 <span>Jami:</span>
                 <span>
-                  {useBasketStore.getState().getTotalPrice().toFixed(2)} so'm
+                  {useBasketStore.getState().getTotalPrice().toFixed(2)} sum
                 </span>
               </p>
             </div>
@@ -184,7 +184,7 @@ const handleCheckout = async () => {
             ) : (
               <SignInButton mode="modal">
                 <button className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-medium transition-colors">
-                  To'lash uchun kirish
+                  Tulash uchun kirish
                 </button>
               </SignInButton>
             )}

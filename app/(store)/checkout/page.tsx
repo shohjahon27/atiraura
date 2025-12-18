@@ -1,9 +1,9 @@
-import { client } from "@/sanity/lib/client";
+// import { client } from "@/sanity/lib/client";
 
 // Example using a server action or fetch
 const createOrder = async (formData: {
   customer: { name: string; phone: string; email?: string; address?: string };
-  items: Array<{ product: any; name: string; price: number; quantity: number }>;
+  items: Array<{ product: data: { items: CartItem[]; total: number; customer: Customer }; name: string; price: number; quantity: number }>;
   total: number;
 }) => {
   'use server';
