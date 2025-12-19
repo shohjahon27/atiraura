@@ -7,16 +7,17 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const {
-      click_trans_id,
-      service_id,
-      merchant_trans_id, // your orderNumber
-      amount,
-      action,
-      error,
-      sign_time,
-      sign_string,
-    } = body;
+const {
+  click_trans_id,
+  service_id,
+  merchant_trans_id,
+  amount,
+  action,
+  error: _error, // ← FIX
+  sign_time,
+  sign_string,
+} = body;
+
 
     // Must be prepare
     if (action !== '0') {
