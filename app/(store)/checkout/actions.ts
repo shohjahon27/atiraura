@@ -2,7 +2,7 @@
 
 'use server';
 
-import { client } from '@/lib/sanity/sanity.client'; // ← adjust to your correct client path
+import { client } from "@/sanity/lib/client";
 
 interface CartItem {
   product: { _id: string };
