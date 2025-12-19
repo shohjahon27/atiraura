@@ -8,7 +8,7 @@ import { createOrder } from './actions'; // ← adjust path if you put it elsewh
 // ... your other imports and code
 
 // Example usage in your form handler
-const handleCheckout = async () => {
+const handleCheckout = async (cartItems: any[], calculatedTotal: number) => {
   try {
     const result = await createOrder({
       customer: {
