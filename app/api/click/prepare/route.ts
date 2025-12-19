@@ -1,7 +1,7 @@
-import { NextRequest } from 'next/server';
+// app/api/click/prepare/route.ts
+import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { client } from "@/sanity/lib/client";
-
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,65 +10,65 @@ export async function POST(req: NextRequest) {
     const {
       click_trans_id,
       service_id,
-      merchant_trans_id, // ← this is your orderNumber
+      merchant_trans_id, // your orderNumber
       amount,
       action,
+      error,
       sign_time,
       sign_string,
     } = body;
 
-    // Validate action
+    // Must be prepare
     if (action !== '0') {
-      return Response.json({ error: -8, error_note: 'Invalid action' });
+      return NextResponse.json({ error: -8, error_note: 'Invalid action' });
     }
 
-    // Validate signature
     const secret = process.env.CLICK_SECRET_KEY!;
+
+    // Validate signature
     const hash = crypto
       .createHash('md5')
-      .update(`${click_trans_id}${service_id}${secret}${merchant_trans_id}${amount}${action}${sign_time}`)
+      .update(click_trans_id + service_id + secret + merchant_trans_id + amount + action + sign_time)
       .digest('hex');
 
     if (hash !== sign_string) {
-      return Response.json({ error: -1, error_note: 'Invalid signature' });
+      return NextResponse.json({ error: -1, error_note: 'Invalid signature' });
     }
 
-    // Find order
+    // Find pending order
     const order = await client.fetch(
       `*[_type == "order" && orderNumber == $orderNumber && payment.method == "click" && payment.status == "pending"][0]`,
       { orderNumber: merchant_trans_id }
     );
 
     if (!order) {
-      return Response.json({ error: -5, error_note: 'Order not found' });
+      return NextResponse.json({ error: -5, error_note: 'Order not found' });
     }
 
     if (Number(order.total).toFixed(2) !== Number(amount).toFixed(2)) {
-      return Response.json({ error: -2, error_note: 'Incorrect amount' });
+      return NextResponse.json({ error: -2, error_note: 'Incorrect amount' });
     }
 
-    // Generate prepare ID (can be number or string, CLICK accepts both)
-    const clickPrepareId = Date.now();
+    // Generate prepare ID (number as per docs)
+    const merchant_prepare_id = Date.now();
 
-    // Update order
     await client
       .patch(order._id)
       .set({
-        'payment.status': 'pending', // still pending until complete
         'payment.clickTransId': click_trans_id.toString(),
-        'payment.clickPrepareId': clickPrepareId,
+        'payment.clickPrepareId': merchant_prepare_id,
       })
       .commit();
 
-    return Response.json({
+    return NextResponse.json({
       click_trans_id,
       merchant_trans_id,
-      merchant_prepare_id: clickPrepareId,
+      merchant_prepare_id,
       error: 0,
       error_note: 'Success',
     });
-  } catch (error) {
-    console.error('CLICK Prepare Error:', error);
-    return Response.json({ error: -9, error_note: 'Server error' });
+  } catch (err) {
+    console.error('CLICK Prepare error:', err);
+    return NextResponse.json({ error: -9, error_note: 'Server error' });
   }
 }
