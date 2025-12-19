@@ -1,62 +1,37 @@
-// app/(store)/checkout/actions.ts   (or any path you like)
+'use client';
 
-'use server';
+import { createOrder } from '@/app/actions'; // or the correct path where createOrder is defined
 
-import { client } from "@/sanity/lib/client";
-
-interface CartItem {
-  product: { _id: string };
+type CartItem = {
+  id: string;
   name: string;
   price: number;
   quantity: number;
-}
+};
 
-interface Customer {
-  name: string;
-  phone: string;
-  email?: string;
-  address?: string;
-}
-
-interface CreateOrderFormData {
-  customer: Customer;
-  items: CartItem[];
-  total: number;
-}
-
-export async function createOrder(formData: CreateOrderFormData) {
-  'use server';
-
-  const { customer, items, total } = formData;
-
-  if (!customer.name || !customer.phone || items.length === 0 || !total) {
-    throw new Error('Missing required fields');
-  }
-
-  const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-
-  const order = await client.create({
-    _type: 'order',
-    orderNumber,
-    customer,
-    items: items.map((item) => ({
-      product: { _ref: item.product._id, _type: 'reference' },
-      name: item.name,
-      price: item.price,
-      quantity: item.quantity,
-    })),
-    total,
-    currency: 'UZS',
-    payment: {
-      method: 'click',
-      status: 'pending',
+export async function handleCheckout(
+  cartItems: CartItem[],
+  calculatedTotal: number
+) {
+  const result = await createOrder({
+    customer: {
+      name: 'John Doe',
+      phone: '+998901234567',
     },
-    status: 'processing',
-    createdAt: new Date().toISOString(),
+    items: cartItems,
+    total: calculatedTotal,
   });
 
-  return {
-    orderNumber,
-    total: order.total,
-  };
+  const paymentUrl =
+    `https://my.click.uz/services/pay` +
+    `?service_id=${process.env.NEXT_PUBLIC_CLICK_SERVICE_ID}` +
+    `&merchant_id=${process.env.NEXT_PUBLIC_CLICK_MERCHANT_ID}` +
+    `&merchant_user_id=${process.env.NEXT_PUBLIC_CLICK_MERCHANT_USER_ID}` +
+    `&amount=${result.total.toFixed(2)}` +
+    `&transaction_param=${result.orderNumber}` +
+    `&return_url=${encodeURIComponent(
+      'https://your-site.com/checkout/success?order=' + result.orderNumber
+    )}`;
+
+  window.location.href = paymentUrl;
 }
