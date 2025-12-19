@@ -13,10 +13,10 @@ const {
   merchant_trans_id,
   amount,
   action,
-  error: _error, // ← FIX
   sign_time,
   sign_string,
 } = body;
+
 
 
     // Must be prepare
