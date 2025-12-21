@@ -77,14 +77,14 @@ export default function CheckoutPage() {
           Jami: {total.toLocaleString()} so'm
         </div>
 
-        <button
-          type="button"
-          onClick={onSubmit}
-          disabled={loading}
-          className="w-full bg-blue-500 text-white py-3 rounded font-bold hover:bg-blue-600 disabled:opacity-50"
-        >
-         {loading ? 'Yuklanmoqda...' : 'CLICK bilan tolash'}
-        </button>
+<button
+  type="button"
+  onClick={onSubmit}
+  disabled={loading}
+  className="w-full bg-blue-500 text-white py-3 rounded font-bold hover:bg-blue-600 disabled:opacity-50"
+>
+  {loading ? 'Yuklanmoqda...' : 'CLICK bilan to&apos;lash'}
+</button>
       </form>
     </div>
   );
