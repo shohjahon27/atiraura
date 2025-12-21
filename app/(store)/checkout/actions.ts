@@ -1,13 +1,7 @@
 'use client';
 
-import { createOrder } from '@/app/actions'; // or the correct path where createOrder is defined
-
-type CartItem = {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-};
+import { createOrder } from './server-actions';
+import type { CartItem } from './types';
 
 export async function handleCheckout(
   cartItems: CartItem[],
