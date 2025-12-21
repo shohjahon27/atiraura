@@ -1,7 +1,6 @@
-// app/(store)/checkout/server-actions.ts
 'use server';
 
-import { client } from '@/sanity/lib/client'; // ← adjust if your path is different
+import { client } from '@/sanity/lib/client'; // Adjust path if needed (e.g., '@/sanity/client')
 import type { CartItem } from './types';
 
 interface CheckoutData {
@@ -29,9 +28,9 @@ export async function createOrder(data: CheckoutData) {
     orderNumber,
     customer,
     items: items.map((item) => ({
-      product: { _ref: item.id, _type: 'reference' },
-      name: item.name,
-      price: item.price,
+      product: { _ref: item.product._id, _type: 'reference' },
+      name: item.product.name,
+      price: item.product.price,
       quantity: item.quantity,
     })),
     total,

@@ -1,15 +1,10 @@
-// app/(store)/checkout/client-actions.ts   ← rename the file!
 'use client';
 
 import { createOrder } from './server-actions';
+import type { CartItem } from './types';
 
 export async function handleCheckout(
-  cartItems: Array<{
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-  }>,
+  cartItems: CartItem[],
   total: number,
   customer: { name: string; phone: string; email?: string; address?: string }
 ) {
@@ -32,6 +27,6 @@ export async function handleCheckout(
     window.location.href = `https://my.click.uz/services/pay?${params.toString()}`;
   } catch (error) {
     console.error('Checkout failed:', error);
-    alert('Buyurtma yaratishda xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.');
+    alert("Buyurtma yaratishda xatolik. Iltimos, qayta urinib ko'ring.");
   }
 }
