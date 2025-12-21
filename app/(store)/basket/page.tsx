@@ -1,3 +1,5 @@
+// app/(store)/basket/page.tsx (or wherever this file is)
+
 "use client";
 
 import AddToBasketButton from "@/components/AddToBasketButton";
@@ -8,8 +10,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Loader from "../loading";
-// import { createCheckoutSession } from "@/actions/createCheckoutSession"; // Stripe
-import { createClickCheckout } from "@/actions/createClickCheckout"; // Click.uz - FIXED: removed duplicate
+import { handleCheckout } from "@/app/(store)/checkout/client-actions"; // ← GOOD ONE
+import type { CartItem } from "@/app/(store)/checkout/types";
 
 function BasketPage() {
   const groupedItems = useBasketStore((state) => state.getGroupedItems());
@@ -19,14 +21,13 @@ function BasketPage() {
 
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"click" | "stripe">("click"); // Default to Click
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   if (!isClient) {
-    return <Loader/>;
+    return <Loader />;
   }
 
   if (groupedItems.length === 0) {
@@ -38,38 +39,45 @@ function BasketPage() {
     );
   }
 
-const handleCheckout = async () => {
-    if (!isSignedIn) {
-        setIsLoading(true);
-        // Handle sign-in logic if needed, then return
-        return;
+  // Convert groupedItems to CartItem format for handleCheckout
+  const cartItems: CartItem[] = groupedItems.map((item) => ({
+    product: {
+      _id: item.product._id,
+      name: item.product.name ?? "Unknown",
+      price: item.product.price ?? 0,
+    },
+    quantity: item.quantity,
+  }));
+
+  const total = useBasketStore.getState().getTotalPrice();
+
+  const onCheckout = async () => {
+    if (!isSignedIn || !user) {
+      alert("To'lov qilish uchun tizimga kirishingiz kerak.");
+      return;
     }
+
+    setIsLoading(true);
+
     try {
-        setIsLoading(true);
-        const metadata = {
-            orderNumber: crypto.randomUUID(),
-            customerName: user?.fullName ?? "Unknown",
-            customerEmail: user?.emailAddresses[0].emailAddress ?? "Unknown",
-            clerkUserId: user!.id,
-        };
-        // Use ONLY Click.uz
-        const checkoutUrl = await createClickCheckout(groupedItems, metadata);
-        if (checkoutUrl) {
-            window.location.href = checkoutUrl;
-        }
-    } catch (error) {
-        console.error("Error creating checkout session:", error);
-        alert("To'lov tizimida xatolik. Iltimos, keyinroq urinib ko'ring.");
+      await handleCheckout(cartItems, total, {
+        name: user.fullName ?? "Unknown",
+        phone: user.phoneNumbers[0]?.phoneNumber ?? "+998", // fallback, better to have phone input
+        email: user.emailAddresses[0]?.emailAddress,
+        address: undefined,
+      });
+    } catch (err) {
+      console.error("Checkout failed:", err);
+      alert("To'lov tizimida xatolik. Iltimos, keyinroq urinib ko'ring.");
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-};
+  };
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-7xl">
       <h1 className="text-3xl font-bold mb-6 text-center sm:text-left text-gray-900 dark:text-white">Savatingiz</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Products List - Takes 2/3 on desktop */}
         <div className="lg:col-span-2 space-y-4">
           {groupedItems?.map((item) => (
             <div
@@ -96,7 +104,7 @@ const handleCheckout = async () => {
                     {item.product.name}
                   </h2>
                   <p className="text-base text-gray-600 dark:text-gray-300">
-                    Narx: {((item.product.price ?? 0) * item.quantity).toFixed(2)} sum
+                    Narx: {((item.product.price ?? 0) * item.quantity).toLocaleString()} sum
                   </p>
                 </div>
               </div>
@@ -108,82 +116,32 @@ const handleCheckout = async () => {
           ))}
         </div>
 
-        {/* Checkout Panel - Takes 1/3 on desktop, fixed on mobile */}
         <div className="lg:col-span-1">
           <div className="lg:sticky lg:top-4 bg-white dark:bg-gray-800 p-6 border rounded-lg shadow-md">
             <h3 className="text-xl font-semibold mb-4">Buyurtma xulosasi</h3>
-            
-            {/* Payment Method Selector */}
-            <div className="mb-4">
-              <p className="font-medium mb-2">Tulov usuli:</p>
-              <div className="flex flex-col gap-2">
-                <label className="flex items-center p-3 border rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="click"
-                    checked={paymentMethod === "click"}
-                    onChange={() => setPaymentMethod("click")}
-                    className="mr-3"
-                  />
-                  <div>
-                    <span className="font-medium">Click.uz</span>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Uzcard, Humo, mobil hisob orqali
-                    </p>
-                  </div>
-                </label>
-                
-                <label className="flex items-center p-3 border rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="stripe"
-                    checked={paymentMethod === "stripe"}
-                    onChange={() => setPaymentMethod("stripe")}
-                    className="mr-3"
-                  />
-                  <div>
-                    <span className="font-medium">Stripe (Xalqaro)</span>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Visa, Mastercard
-                    </p>
-                  </div>
-                </label>
-              </div>
-            </div>
-            
-            {/* Order Summary */}
+
             <div className="mt-4 space-y-2">
               <p className="flex justify-between">
                 <span>Mahsulotlar:</span>
-                <span>
-                  {groupedItems.reduce((total, item) => total + item.quantity, 0)}
-                </span>
+                <span>{groupedItems.reduce((total, item) => total + item.quantity, 0)}</span>
               </p>
               <p className="flex justify-between text-2xl font-bold border-t pt-2">
                 <span>Jami:</span>
-                <span>
-                  {useBasketStore.getState().getTotalPrice().toFixed(2)} sum
-                </span>
+                <span>{total.toLocaleString()} sum</span>
               </p>
             </div>
 
-            {/* Checkout Button */}
             {isSignedIn ? (
               <button
-                onClick={handleCheckout}
+                onClick={onCheckout}
                 disabled={isLoading}
-                className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-medium disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="mt-6 w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-4 rounded-lg font-bold disabled:opacity-50 transition-colors"
               >
-                {isLoading ? "Yuklanmoqda..." : 
-                  paymentMethod === "click" ? 
-                  "Click.uz orqali to'lash" : 
-                  "Stripe orqali to'lash"}
+                {isLoading ? "Yuklanmoqda..." : "CLICK bilan to'lash"}
               </button>
             ) : (
               <SignInButton mode="modal">
-                <button className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                <button className="mt-6 w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-4 rounded-lg font-bold transition-colors">
                   Tulash uchun kirish
                 </button>
               </SignInButton>
