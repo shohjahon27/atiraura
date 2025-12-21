@@ -83,7 +83,7 @@ export default function CheckoutPage() {
           disabled={loading}
           className="w-full bg-blue-500 text-white py-3 rounded font-bold hover:bg-blue-600 disabled:opacity-50"
         >
-         {loading ? 'Yuklanmoqda...' : 'CLICK bilan to&apos;lash'}
+         {loading ? 'Yuklanmoqda...' : 'CLICK bilan tolash'}
         </button>
       </form>
     </div>
