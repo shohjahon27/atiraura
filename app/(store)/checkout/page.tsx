@@ -74,7 +74,7 @@ export default function CheckoutPage() {
         />
 
         <div className="text-xl font-bold my-4">
-          Jami: {total.toLocaleString()} so'm
+          Jami: {total.toLocaleString()} so&apos;m
         </div>
 
 <button
