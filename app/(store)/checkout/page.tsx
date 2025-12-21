@@ -1,10 +1,11 @@
+// app/(store)/checkout/page.tsx
 'use client';
 
 import { useState } from 'react';
 import { handleCheckout } from './client-actions';
 import type { CartItem } from './types';
 
-// Mock cart for testing (replace with your real cart store in production)
+// Correct mock cart matching CartItem type
 const mockCart: CartItem[] = [
   {
     product: {
@@ -13,9 +14,6 @@ const mockCart: CartItem[] = [
       price: 1000,
     },
     quantity: 1,
-    id: '',
-    name: '',
-    price: 0
   },
 ];
 
@@ -26,7 +24,7 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const cartItems = mockCart; // Replace with real cartItems from your store
+  const cartItems = mockCart;
   const total = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
   const onSubmit = async () => {
@@ -85,7 +83,7 @@ export default function CheckoutPage() {
           disabled={loading}
           className="w-full bg-blue-500 text-white py-3 rounded font-bold hover:bg-blue-600 disabled:opacity-50"
         >
-          {loading ? 'Yuklanmoqda...' : 'CLICK bilan to\'lash'}
+          {loading ? 'Yuklanmoqda...' : 'CLICK bilan to&apos;lash'}
         </button>
       </form>
     </div>
