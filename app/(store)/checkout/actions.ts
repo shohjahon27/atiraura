@@ -24,7 +24,7 @@ export async function handleCheckout(
     `&amount=${result.total.toFixed(2)}` +
     `&transaction_param=${result.orderNumber}` +
     `&return_url=${encodeURIComponent(
-      'https://your-site.com/checkout/success?order=' + result.orderNumber
+      'https://atiraura-two.vercel.app/checkout/success?order=' + result.orderNumber
     )}`;
 
   window.location.href = paymentUrl;
