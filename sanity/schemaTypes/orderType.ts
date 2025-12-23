@@ -1,3 +1,4 @@
+// sanity/schemaTypes/orderType.ts
 import { defineType, defineField } from 'sanity';
 import { BasketIcon } from '@sanity/icons';
 
@@ -13,7 +14,6 @@ export const orderType = defineType({
       type: 'string',
       validation: (Rule) => Rule.required(),
     }),
-    
     defineField({
       name: 'customer',
       title: 'Customer',
@@ -25,7 +25,6 @@ export const orderType = defineType({
         defineField({ name: 'address', title: 'Address', type: 'text' }),
       ],
     }),
-
     defineField({
       name: 'payment',
       title: 'Payment',
@@ -56,16 +55,11 @@ export const orderType = defineType({
           },
           initialValue: 'pending',
         }),
-        // Click fields
         defineField({ name: 'clickPrepareId', title: 'Click Prepare ID', type: 'number' }),
         defineField({ name: 'clickTransId', title: 'Click Trans ID', type: 'string' }),
         defineField({ name: 'clickConfirmId', title: 'Click Confirm ID', type: 'number' }),
-        // Stripe fields
-        defineField({ name: 'stripeCheckoutSessionId', title: 'Stripe Session ID', type: 'string' }),
-        defineField({ name: 'stripePaymentIntentId', title: 'Stripe Payment ID', type: 'string' }),
       ],
     }),
-
     defineField({
       name: 'items',
       title: 'Items',
@@ -80,20 +74,17 @@ export const orderType = defineType({
         ],
       }],
     }),
-
     defineField({
       name: 'total',
       title: 'Total',
       type: 'number',
     }),
-
     defineField({
       name: 'currency',
       title: 'Currency',
       type: 'string',
       initialValue: 'UZS',
     }),
-
     defineField({
       name: 'status',
       title: 'Order Status',
@@ -107,21 +98,18 @@ export const orderType = defineType({
       },
       initialValue: 'processing',
     }),
-
     defineField({
       name: 'createdAt',
       title: 'Created At',
       type: 'datetime',
       initialValue: () => new Date().toISOString(),
     }),
-
     defineField({
       name: 'notes',
       title: 'Notes',
       type: 'text',
     }),
   ],
-
   preview: {
     select: {
       title: 'orderNumber',
@@ -136,7 +124,6 @@ export const orderType = defineType({
         media: BasketIcon,
       };
     },
+    
   },
 });
-
-export default orderType;
