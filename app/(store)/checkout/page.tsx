@@ -1,91 +1,181 @@
-// app/(store)/checkout/page.tsx
 'use client';
 
 import { useState } from 'react';
-import { handleCheckout } from './client-actions';
-import type { CartItem } from './types';
-
-// Correct mock cart matching CartItem type
-const mockCart: CartItem[] = [
-  {
-    product: {
-      _id: '44813e20-f1fd-47d4-9af5-c89c19474a68',
-      name: 'Parfum Atir MEN No.2',
-      price: 1000,
-    },
-    quantity: 1,
-  },
-];
+import useBasketStore from '@/sanity/lib/store';
+import ClickButton from '@/components/ClickButton';
 
 export default function CheckoutPage() {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
+  const { items, getTotalPrice, clearBasket } = useBasketStore();
   const [loading, setLoading] = useState(false);
+  const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const cartItems = mockCart;
-  const total = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const [customer, setCustomer] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    address: '',
+  });
 
-  const onSubmit = async () => {
-    if (!name || !phone) {
-      alert('Ism va telefon raqamini kiriting!');
+  const total = getTotalPrice();
+
+  const handleSubmit = async () => {
+    // Validation
+    if (!customer.name.trim() || !customer.phone.trim() || !customer.address.trim()) {
+      setError('Iltimos, barcha maydonlarni to\'ldiring');
       return;
     }
 
     setLoading(true);
-    await handleCheckout(cartItems, total, { name, phone, email: email || undefined, address: address || undefined });
-    setLoading(false);
+    setError(null);
+
+    try {
+      // Generate order number
+      const generatedOrderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+      
+      // Prepare items with proper types
+      const orderItems = items.map(i => {
+        const price = i.product.price || 0;
+        
+        return {
+          product: { 
+            _id: i.product._id,
+            name: i.product.name || 'Unknown Product',
+            price: price
+          },
+          quantity: i.quantity,
+        };
+      });
+
+      console.log('📤 Sending order data to API:', {
+        customer,
+        items: orderItems,
+        total,
+        orderNumber: generatedOrderNumber
+      });
+
+      // Use API route instead of server action
+      const response = await fetch('/api/orders/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customer,
+          items: orderItems,
+          total,
+          orderNumber: generatedOrderNumber,
+        }),
+      });
+
+      const data = await response.json();
+
+      console.log('API Response:', data);
+
+      if (data.success) {
+        console.log('✅ Order created successfully via API');
+        setOrderNumber(generatedOrderNumber);
+        clearBasket();
+      } else {
+        console.error('❌ API failed:', data.error);
+        setError('Buyurtma yaratishda xatolik: ' + data.error);
+      }
+    } catch (err: any) {
+      console.error('❌ Checkout error:', err);
+      setError('Server xatosi: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-md">
-      <h1 className="text-3xl font-bold mb-6">Buyurtma berish</h1>
+    <div className="max-w-3xl mx-auto py-10 space-y-6">
+      <h1 className="text-3xl font-bold">Checkout</h1>
 
-      <form className="space-y-4">
-        <input
-          type="text"
-          placeholder="Ismingiz"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full p-3 border rounded"
-          required
-        />
-        <input
-          type="tel"
-          placeholder="Telefon: +998901234567"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="w-full p-3 border rounded"
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email (ixtiyoriy)"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 border rounded"
-        />
-        <textarea
-          placeholder="Manzil (ixtiyoriy)"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          className="w-full p-3 border rounded h-24"
-        />
-
-        <div className="text-xl font-bold my-4">
-          Jami: {total.toLocaleString()} so&apos;m
+      {/* Error message */}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
         </div>
+      )}
 
-<button
-  type="button"
-  onClick={onSubmit}
-  disabled={loading}
-  className="w-full bg-blue-500 text-white py-3 rounded font-bold hover:bg-blue-600 disabled:opacity-50"
->
-  {loading ? 'Yuklanmoqda...' : 'CLICK bilan to&apos;lash'}
-</button>
-      </form>
+      {/* CUSTOMER FORM */}
+      {!orderNumber && (
+        <div className="space-y-4">
+          <div>
+            <label className="block mb-1 font-medium">Ismingiz *</label>
+            <input
+              placeholder="Ism Familiya"
+              className="w-full border p-3 rounded"
+              value={customer.name}
+              onChange={e => setCustomer({ ...customer, name: e.target.value })}
+            />
+          </div>
+          
+          <div>
+            <label className="block mb-1 font-medium">Telefon raqamingiz *</label>
+            <input
+              placeholder="+998 XX XXX XX XX"
+              className="w-full border p-3 rounded"
+              value={customer.phone}
+              onChange={e => setCustomer({ ...customer, phone: e.target.value })}
+            />
+          </div>
+          
+          <div>
+            <label className="block mb-1 font-medium">Email (ixtiyoriy)</label>
+            <input
+              placeholder="email@example.com"
+              className="w-full border p-3 rounded"
+              value={customer.email}
+              onChange={e => setCustomer({ ...customer, email: e.target.value })}
+            />
+          </div>
+          
+          <div>
+            <label className="block mb-1 font-medium">Manzil *</label>
+            <textarea
+              placeholder="To'liq manzilingiz"
+              className="w-full border p-3 rounded"
+              rows={3}
+              value={customer.address}
+              onChange={e => setCustomer({ ...customer, address: e.target.value })}
+            />
+          </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={loading || !customer.name || !customer.phone || !customer.address}
+            className={`w-full py-3 rounded font-medium ${
+              loading || !customer.name || !customer.phone || !customer.address
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            }`}
+          >
+            {loading ? 'Yuborilmoqda...' : 'Davom etish'}
+          </button>
+        </div>
+      )}
+
+      {/* PAYMENT */}
+      {orderNumber && (
+        <div className="text-center">
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded">
+            <h2 className="text-xl font-semibold text-green-700 mb-2">Buyurtma qabul qilindi!</h2>
+            <p className="text-gray-600">Buyurtma raqamingiz: <strong>{orderNumber}</strong></p>
+            <p className="text-gray-600 mt-2">Endi to'lovni amalga oshiring:</p>
+          </div>
+          
+          <ClickButton
+            orderNumber={orderNumber}
+            amount={total}
+          />
+          
+          <p className="mt-4 text-sm text-gray-500">
+            To'lov tugagach, sizga SMS xabar yuboriladi.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

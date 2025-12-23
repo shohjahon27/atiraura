@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@sanity/client';
 
 const sanityClient = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   apiVersion: '2024-12-31',
-  token: process.env.SANITY_API_TOKEN,
+  token: process.env.SANITY_API_TOKEN!,
   useCdn: false,
 });
 
@@ -13,12 +13,12 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    console.log('📦 Creating order from API route:', body);
+    console.log('📦 API Route: Creating order');
     
     // Generate order number
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
     
-    // Create order in Sanity
+    // Create order
     const order = await sanityClient.create({
       _type: 'order',
       customer: {
@@ -34,18 +34,18 @@ export async function POST(request: NextRequest) {
           _type: 'reference',
           _ref: item.product?._id,
         },
-        productName: item.name || 'Unknown',
+        productName: item.product?.name || 'Unknown',
         quantity: item.quantity || 1,
-        price: item.price || 0,
+        price: item.product?.price || 0,
       })),
       total: body.total || 0,
       status: 'pending',
-      paymentMethod: 'click', // Will be updated after payment
+      paymentMethod: 'click',
       orderNumber,
       createdAt: new Date().toISOString(),
     });
     
-    console.log('✅ Order created:', order._id);
+    console.log('✅ API Route: Order created:', order._id);
     
     return NextResponse.json({
       success: true,
@@ -54,10 +54,13 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error: any) {
-    console.error('❌ API route error:', error);
-    
+    console.error('❌ API Route Error:', error.message);
     return NextResponse.json(
-      { success: false, error: error.message },
+      {
+        success: false,
+        error: error.message,
+        details: error.responseBody,
+      },
       { status: 500 }
     );
   }

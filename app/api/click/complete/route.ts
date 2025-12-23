@@ -1,9 +1,12 @@
-// app/api/click/complete/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
-import { writeClient } from "@/sanity/lib/writeClient";
+import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
+import { client } from '@/sanity/lib/client';
+import { writeClient } from '@/sanity/lib/writeClient';
 
 export async function POST(req: NextRequest) {
+  const body = await req.json();
+  console.log('CLICK COMPLETE HIT:', new Date().toISOString(), body); // ← LOG
+
   try {
     const body = await req.json();
 
@@ -65,16 +68,15 @@ export async function POST(req: NextRequest) {
 
     // Optional: fulfill order (email, stock, etc.)
 
-    return NextResponse.json({
-      click_trans_id,
-      merchant_trans_id,
+return NextResponse.json({
+      click_trans_id: body.click_trans_id,
+      merchant_trans_id: body.merchant_trans_id,
       merchant_confirm_id,
       error: 0,
-      error_note: "Success",
+      error_note: 'Success',
     });
-
   } catch (err) {
-    console.error("CLICK Complete error:", err);
-    return NextResponse.json({ error: -9, error_note: "Server error" });
+    console.error('COMPLETE ERROR:', err);
+    return NextResponse.json({ error: -9, error_note: 'Server error' });
   }
 }

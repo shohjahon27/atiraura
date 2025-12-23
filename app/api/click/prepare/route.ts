@@ -4,8 +4,10 @@ import crypto from "crypto";
 import { writeClient } from "@/sanity/lib/writeClient";
 
 export async function POST(req: NextRequest) {
+  const body = await req.json();
+  console.log('CLICK PREPARE HIT:', new Date().toISOString(), body); // ← LOG
+
   try {
-    const body = await req.json();
 
     const {
       click_trans_id,
@@ -56,16 +58,15 @@ export async function POST(req: NextRequest) {
       "payment.status": "pending",
     }).commit();
 
-    return NextResponse.json({
-      click_trans_id,
-      merchant_trans_id,
+return NextResponse.json({
+      click_trans_id: body.click_trans_id,
+      merchant_trans_id: body.merchant_trans_id,
       merchant_prepare_id,
       error: 0,
-      error_note: "Success",
+      error_note: 'Success',
     });
-
   } catch (err) {
-    console.error("CLICK Prepare error:", err);
-    return NextResponse.json({ error: -9, error_note: "Server error" });
+    console.error('PREPARE ERROR:', err);
+    return NextResponse.json({ error: -9, error_note: 'Server error' });
   }
 }
