@@ -3,7 +3,7 @@
 import AddToBasketButton from "@/components/AddToBasketButton";
 import { imageUrl } from "@/lib/imageUrl";
 import useBasketStore from "@/sanity/lib/store";
-import { SignInButton, useAuth } from "@clerk/nextjs";
+// import { SignInButton, useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,7 +12,7 @@ import Link from "next/link";
 
 function BasketPage() {
   const groupedItems = useBasketStore((state) => state.getGroupedItems());
-  const { isSignedIn } = useAuth();
+  // const { isSignedIn } = useAuth();
   const router = useRouter();
 
   const [isClient, setIsClient] = useState(false);
@@ -91,7 +91,7 @@ function BasketPage() {
               </span>
             </p>
 
-            {isSignedIn ? (
+            {/* {isSignedIn ? ( */}
 <Link
   href="/checkout"
   className="w-full bg-blue-600 text-white py-3 rounded text-center block"
@@ -101,12 +101,12 @@ function BasketPage() {
 
 
             ) : (
-              // <SignInButton mode="modal">
+              {/* // <SignInButton mode="modal"> */}
                 <button className="mt-6 w-full bg-blue-600 text-white py-3 rounded">
                   Tulash uchun kirish
                 </button>
-              // </SignInButton>
-            )}
+              {/* // </SignInButton> */}
+            {/* )} */}
           </div>
         </div>
       </div>
