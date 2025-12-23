@@ -8,9 +8,9 @@ export default function SuccessPage() {
 
   return (
     <div className="container mx-auto py-20 text-center">
-      <h1 className="text-4xl font-bold mb-4">To'lov muvaffaqiyatli!</h1>
-      <p className="text-xl mb-8">Buyurtma raqami: {order || 'Noma\'lum'}</p>
-      <p>Rahmat! Tez orada siz bilan bog'lanamiz.</p>
+      <h1 className="text-4xl font-bold mb-4">To&apos;lov muvaffaqiyatli!</h1>
+      <p className="text-xl mb-8">Buyurtma raqami: {order || 'Noma&apos;lum'}</p>
+      <p>Rahmat! Tez orada siz bilan bog&apos;lanamiz.</p>
     </div>
   );
 }

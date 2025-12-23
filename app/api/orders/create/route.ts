@@ -9,6 +9,15 @@ const sanityClient = createClient({
   useCdn: false,
 });
 
+interface OrderItemRequest {
+  product?: { 
+    _id?: string; 
+    name?: string; 
+    price?: number 
+  };
+  quantity?: number;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -16,7 +25,7 @@ export async function POST(request: NextRequest) {
     console.log('📦 API Route: Creating order');
     
     // Generate order number
-    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+    const orderNumber = body.orderNumber || `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
     
     // Create order
     const order = await sanityClient.create({
@@ -28,11 +37,11 @@ export async function POST(request: NextRequest) {
         email: body.customer?.email || 'No email',
         address: body.customer?.address || 'No address',
       },
-      items: (body.items || []).map((item: any) => ({
+      items: (body.items || []).map((item: OrderItemRequest) => ({
         _type: 'orderItem',
         product: {
           _type: 'reference',
-          _ref: item.product?._id,
+          _ref: item.product?._id || '',
         },
         productName: item.product?.name || 'Unknown',
         quantity: item.quantity || 1,
@@ -53,13 +62,13 @@ export async function POST(request: NextRequest) {
       orderNumber,
     });
     
-  } catch (error: any) {
-    console.error('❌ API Route Error:', error.message);
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('❌ API Route Error:', err.message);
     return NextResponse.json(
       {
         success: false,
-        error: error.message,
-        details: error.responseBody,
+        error: err.message,
       },
       { status: 500 }
     );

@@ -15,7 +15,7 @@ export type OrderItem = {
   product: { 
     _id: string; 
     name?: string; 
-    price?: number;  // Changed from `price: number` to `price?: number`
+    price?: number;
   }; 
   quantity: number;
 };
@@ -44,12 +44,13 @@ export async function createOrder(orderData: {
       // Clean up
       await sanityClient.delete(testDoc._id);
       console.log('✅ Test document cleaned up');
-    } catch (testError: any) {
-      console.error('❌ SANITY TOKEN TEST FAILED:', testError.message);
+    } catch (testError: unknown) {
+      const error = testError as Error;
+      console.error('❌ SANITY TOKEN TEST FAILED:', error.message);
       console.error('Token issue detected!');
       return {
         success: false,
-        error: `Sanity token error: ${testError.message}`,
+        error: `Sanity token error: ${error.message}`,
       };
     }
 
@@ -71,7 +72,7 @@ export async function createOrder(orderData: {
         },
         productName: item.product.name || 'Unknown Product',
         quantity: item.quantity,
-        price: item.product.price || 0, // Handle undefined price
+        price: item.product.price || 0,
       })),
       total: orderData.total,
       status: 'pending',
@@ -87,17 +88,13 @@ export async function createOrder(orderData: {
       orderId: order._id,
     };
 
-  } catch (error: any) {
-    console.error('❌ Error creating order:', error);
-    console.error('Error details:', {
-      message: error.message,
-      statusCode: error.statusCode,
-      response: error.responseBody,
-    });
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('❌ Error creating order:', err);
     
     return {
       success: false,
-      error: error.message || 'Unknown error creating order',
+      error: err.message || 'Unknown error creating order',
     };
   }
 }

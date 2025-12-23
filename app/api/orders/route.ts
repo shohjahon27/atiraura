@@ -2,12 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@sanity/client';
 
 const sanityClient = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   apiVersion: '2024-12-31',
-  token: process.env.SANITY_API_TOKEN,
+  token: process.env.SANITY_API_TOKEN!,
   useCdn: false,
 });
+
+interface OrderItemRequest {
+  product?: { 
+    _id?: string 
+  };
+  name?: string;
+  price?: number;
+  quantity?: number;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,11 +37,11 @@ export async function POST(request: NextRequest) {
         email: body.customer?.email || 'No email',
         address: body.customer?.address || 'No address',
       },
-      items: (body.items || []).map((item: any) => ({
+      items: (body.items || []).map((item: OrderItemRequest) => ({
         _type: 'orderItem',
         product: {
           _type: 'reference',
-          _ref: item.product?._id,
+          _ref: item.product?._id || '',
         },
         productName: item.name || 'Unknown',
         quantity: item.quantity || 1,
@@ -40,7 +49,7 @@ export async function POST(request: NextRequest) {
       })),
       total: body.total || 0,
       status: 'pending',
-      paymentMethod: 'click', // Will be updated after payment
+      paymentMethod: 'click',
       orderNumber,
       createdAt: new Date().toISOString(),
     });
@@ -53,11 +62,12 @@ export async function POST(request: NextRequest) {
       orderNumber,
     });
     
-  } catch (error: any) {
-    console.error('❌ API route error:', error);
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('❌ API route error:', err);
     
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: err.message },
       { status: 500 }
     );
   }

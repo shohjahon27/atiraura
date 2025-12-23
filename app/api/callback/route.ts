@@ -22,9 +22,12 @@ export async function POST(request: NextRequest) {
     const merchantPrepareId = params.merchant_prepare_id?.toString();
     const merchantConfirmId = params.merchant_confirm_id?.toString();
     const amount = params.amount?.toString();
-    const action = params.action?.toString(); // 0=prepare, 1=complete
+    const action = params.action?.toString();
     const error = params.error?.toString();
     const errorNote = params.error_note?.toString();
+    
+    // Log amount to use the variable
+    console.log('Payment amount:', amount);
     
     // Find order by orderNumber (merchant_trans_id)
     const orderNumber = merchantTransId;
@@ -45,11 +48,11 @@ export async function POST(request: NextRequest) {
     console.log('Found order:', order._id);
     
     // Update order based on action
-    const updateData: any = {
+    const updateData: Record<string, string | Date> = {
       clickTransId: clickTransId || '',
       clickPrepareId: merchantPrepareId || '',
       clickConfirmId: merchantConfirmId || '',
-      updatedAt: new Date().toISOString(),
+      updatedAt: new Date(),
     };
     
     if (action === '0') {
@@ -64,13 +67,13 @@ export async function POST(request: NextRequest) {
         // Success
         updateData.paymentStatus = 'completed';
         updateData.status = 'paid';
-        updateData.paidAt = new Date().toISOString();
+        updateData.paidAt = new Date();
         console.log('Payment completed:', orderNumber);
       } else {
         // Failed
         updateData.paymentStatus = 'failed';
         updateData.status = 'payment_failed';
-        updateData.paymentError = errorNote;
+        updateData.paymentError = errorNote || '';
         console.log('Payment failed:', orderNumber, errorNote);
       }
     }
@@ -90,10 +93,11 @@ export async function POST(request: NextRequest) {
       error_note: errorNote || 'Success',
     });
     
-  } catch (error: any) {
-    console.error('❌ Click.uz callback error:', error);
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('❌ Click.uz callback error:', err);
     return NextResponse.json(
-      { error: error.message },
+      { error: err.message },
       { status: 500 }
     );
   }

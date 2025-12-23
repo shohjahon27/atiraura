@@ -4,6 +4,15 @@ import { useState } from 'react';
 import useBasketStore from '@/sanity/lib/store';
 import ClickButton from '@/components/ClickButton';
 
+interface OrderItem {
+  product: { 
+    _id: string;
+    name: string | undefined;
+    price: number | undefined;
+  };
+  quantity: number;
+}
+
 export default function CheckoutPage() {
   const { items, getTotalPrice, clearBasket } = useBasketStore();
   const [loading, setLoading] = useState(false);
@@ -22,7 +31,7 @@ export default function CheckoutPage() {
   const handleSubmit = async () => {
     // Validation
     if (!customer.name.trim() || !customer.phone.trim() || !customer.address.trim()) {
-      setError('Iltimos, barcha maydonlarni to\'ldiring');
+      setError('Iltimos, barcha maydonlarni to&apos;ldiring');
       return;
     }
 
@@ -34,7 +43,7 @@ export default function CheckoutPage() {
       const generatedOrderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
       
       // Prepare items with proper types
-      const orderItems = items.map(i => {
+      const orderItems: OrderItem[] = items.map(i => {
         const price = i.product.price || 0;
         
         return {
@@ -80,9 +89,10 @@ export default function CheckoutPage() {
         console.error('❌ API failed:', data.error);
         setError('Buyurtma yaratishda xatolik: ' + data.error);
       }
-    } catch (err: any) {
-      console.error('❌ Checkout error:', err);
-      setError('Server xatosi: ' + err.message);
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error('❌ Checkout error:', error);
+      setError('Server xatosi: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -135,7 +145,7 @@ export default function CheckoutPage() {
           <div>
             <label className="block mb-1 font-medium">Manzil *</label>
             <textarea
-              placeholder="To'liq manzilingiz"
+              placeholder="To&apos;liq manzilingiz"
               className="w-full border p-3 rounded"
               rows={3}
               value={customer.address}
@@ -163,7 +173,7 @@ export default function CheckoutPage() {
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded">
             <h2 className="text-xl font-semibold text-green-700 mb-2">Buyurtma qabul qilindi!</h2>
             <p className="text-gray-600">Buyurtma raqamingiz: <strong>{orderNumber}</strong></p>
-            <p className="text-gray-600 mt-2">Endi to'lovni amalga oshiring:</p>
+            <p className="text-gray-600 mt-2">Endi to&apos;lovni amalga oshiring:</p>
           </div>
           
           <ClickButton
@@ -172,7 +182,7 @@ export default function CheckoutPage() {
           />
           
           <p className="mt-4 text-sm text-gray-500">
-            To'lov tugagach, sizga SMS xabar yuboriladi.
+            To&apos;lov tugagach, sizga SMS xabar yuboriladi.
           </p>
         </div>
       )}
