@@ -100,11 +100,11 @@ function BasketPage() {
 </Link>
 
 
-            ) : (
+            {/* ) : ( */}
               {/* // <SignInButton mode="modal"> */}
-                <button className="mt-6 w-full bg-blue-600 text-white py-3 rounded">
+                {/* <button className="mt-6 w-full bg-blue-600 text-white py-3 rounded">
                   Tulash uchun kirish
-                </button>
+                </button> */}
               {/* // </SignInButton> */}
             {/* )} */}
           </div>

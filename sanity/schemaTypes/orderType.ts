@@ -37,7 +37,6 @@ export const orderType = defineType({
           options: {
             list: [
               { title: 'Click.uz', value: 'click' },
-              { title: 'Stripe', value: 'stripe' },
               { title: 'Cash', value: 'cash' },
             ],
           },
@@ -46,6 +45,7 @@ export const orderType = defineType({
           name: 'status',
           title: 'Status',
           type: 'string',
+          initialValue: 'pending',
           options: {
             list: [
               { title: 'Pending', value: 'pending' },
@@ -53,7 +53,6 @@ export const orderType = defineType({
               { title: 'Failed', value: 'failed' },
             ],
           },
-          initialValue: 'pending',
         }),
         defineField({ name: 'clickPrepareId', title: 'Click Prepare ID', type: 'number' }),
         defineField({ name: 'clickTransId', title: 'Click Trans ID', type: 'string' }),
@@ -64,15 +63,34 @@ export const orderType = defineType({
       name: 'items',
       title: 'Items',
       type: 'array',
-      of: [{
-        type: 'object',
-        fields: [
-          defineField({ name: 'product', title: 'Product', type: 'reference', to: [{ type: 'product' }] }),
-          defineField({ name: 'name', title: 'Name', type: 'string' }),
-          defineField({ name: 'price', title: 'Price', type: 'number' }),
-          defineField({ name: 'quantity', title: 'Quantity', type: 'number' }),
-        ],
-      }],
+      of: [
+        {
+          type: 'object',
+          name: 'orderItem',
+          title: 'Order Item',
+          fields: [
+            defineField({ name: 'product', title: 'Product', type: 'reference', to: [{ type: 'product' }] }),
+            defineField({ name: 'name', title: 'Name', type: 'string' }),
+            defineField({ name: 'price', title: 'Price', type: 'number' }),
+            defineField({ name: 'quantity', title: 'Quantity', type: 'number' }),
+          ],
+          preview: {
+            select: {
+              title: 'name',
+              media: 'product.image', // ← Product image
+              price: 'price',
+              quantity: 'quantity',
+            },
+            prepare({ title, media, price, quantity }) {
+              return {
+                title: title || 'No name',
+                subtitle: `${quantity || 1} × ${price || 0} UZS`,
+                media: media,
+              };
+            },
+          },
+        },
+      ],
     }),
     defineField({
       name: 'total',
@@ -113,17 +131,17 @@ export const orderType = defineType({
   preview: {
     select: {
       title: 'orderNumber',
-      customer: 'customer.name',
+      customerName: 'customer.name',
       total: 'total',
-      status: 'payment.status',
+      paymentStatus: 'payment.status',
+      firstItemImage: 'items.0.product.image',
     },
-    prepare({ title, customer, total, status }) {
+    prepare({ title, customerName, total, paymentStatus, firstItemImage }) {
       return {
-        title: `Order #${title}`,
-        subtitle: `${customer} • ${total?.toLocaleString()} UZS • ${status}`,
-        media: BasketIcon,
+        title: `Order #${title || 'Unknown'}`,
+        subtitle: `${customerName || 'No customer'} • ${total || 0} UZS • ${paymentStatus || 'Pending'}`,
+        media: firstItemImage || BasketIcon, // Show first product image or fallback icon
       };
     },
-    
   },
 });
