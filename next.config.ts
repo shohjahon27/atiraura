@@ -1,15 +1,17 @@
+// next.config.js (or .mjs / .ts)
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
-    ignoreDuringBuilds: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.sanity.io',
+        pathname: '**',
+      },
+    ],
   },
-  typescript: {
-    // Dangerously allow production builds to successfully complete even if
-    // your project has TypeScript errors.
-    ignoreBuildErrors: true,
-  },
+  // ... your other config
 };
 
-module.exports = nextConfig;
+export default nextConfig;
