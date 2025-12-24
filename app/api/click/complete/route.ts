@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       merchant_prepare_id,
       amount,
       action,
-      error,
+      // error,
       sign_time,
       sign_string,
     } = body;
