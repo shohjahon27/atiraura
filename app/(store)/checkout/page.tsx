@@ -143,7 +143,7 @@ export default function CheckoutPage() {
           </div>
           
           <div>
-            <label className="block mb-1 font-medium">Manzil *</label>
+            <label className="block mb-1 font-medium">Yetkazib berish Manzili *</label>
             <textarea
               placeholder="To&apos;liq manzilingiz"
               className="w-full border p-3 rounded"

@@ -1,15 +1,24 @@
-export function formatCurrency(
-    amount: number,
-    currencyCode: string = "GBP"
-  ): string {
-    try {
-      return new Intl.NumberFormat("en-GB", {
-        style: "currency",
-        currency: currencyCode.toUpperCase(),
-      }).format(amount);
-    } catch (error) {
-      console.error("Invalid currency code:", currencyCode, error);
-      return `${currencyCode.toUpperCase()} ${amount.toFixed(2)}`;
-    }
+// lib/formatCurrency.ts
+export function formatCurrency(amount: number, currency: string = 'UZS') {
+  if (typeof amount !== 'number' || isNaN(amount)) {
+    amount = 0;
   }
   
+  const safeCurrency = currency?.toUpperCase() || 'UZS';
+  
+  // Uzbek som formatting
+  if (safeCurrency === 'UZS') {
+    return new Intl.NumberFormat('uz-UZ', {
+      style: 'currency',
+      currency: 'UZS',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount).replace('UZS', 'soʻm');
+  }
+  
+  // Other currencies
+  return new Intl.NumberFormat('uz-UZ', {
+    style: 'currency',
+    currency: safeCurrency,
+  }).format(amount);
+}

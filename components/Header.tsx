@@ -114,6 +114,10 @@ function Header() {
                   Contact
                 </Link>
               </li>
+              <li>
+                 {/* Order Tracking Link */}
+                  <Link href="/order-tracking">Buyurtma kuzatish</Link>
+              </li>
             </ul>
           </nav>
 
@@ -147,11 +151,12 @@ function Header() {
             </Link>
 
             {/* Orders Icon (Visible only when signed in) */}
-            <SignedIn>
-              <Link href="/orders">
+            {/* <SignedIn> */}
+              {/* <Link href="/orders" className="relative">
                 <PackageIcon className="w-6 h-6 text-gray-600 hover:text-blue-500 transition" />
-              </Link>
-            </SignedIn>
+              </Link> */}
+            {/* </SignedIn> */}
+
 
             {/* Sign In/User (Moved to the end) */}
             <ClerkLoaded>

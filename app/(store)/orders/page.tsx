@@ -158,21 +158,21 @@ async function Orders() {
                             className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-2 border-b last:border-b-0"
                           >
                             <div className="flex items-center gap-3 sm:gap-4">
-                              {product.image ? (
-                                <div className="relative h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 rounded-md overflow-hidden">
-                                 <Image
-                                                     src={item.product.image ? imageUrl(item.product.image).url() : ""}
-                                                     alt={item.product.name ?? "Product image"}
-                                                     className="w-full h-full object-cover rounded-lg border"
-                                                     width={96}
-                                                     height={96}
-                                                   />
-                                </div>
-                              ) : (
-                                <div className="h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 rounded-md bg-gray-200 flex items-center justify-center">
-                                  <span className="text-gray-500 text-sm">No Image</span>
-                                </div>
-                              )}
+                             {product.image ? (
+  <div className="relative h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 rounded-md overflow-hidden">
+    <Image
+      src={product.image} // ← now it's direct URL string from Sanity
+      alt={product.name ?? "Product"}
+      fill
+      className="object-cover"
+      sizes="80px"
+    />
+  </div>
+) : (
+  <div className="h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 rounded-md bg-gray-200 flex items-center justify-center">
+    <span className="text-gray-500 text-xs">No Image</span>
+  </div>
+)}
                               <div>
                                 <p className="font-medium text-sm sm:text-base">
                                   {product.name ?? "Unknown Product"}
