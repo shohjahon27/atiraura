@@ -1,9 +1,9 @@
 'use client';
 
-import { ClerkLoaded, SignedIn, SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { ClerkLoaded, SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PackageIcon, TrolleyIcon } from "@sanity/icons";
+import { TrolleyIcon } from "@sanity/icons";
 import useBasketStore from "@/sanity/lib/store";
 import { useState, useEffect } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
