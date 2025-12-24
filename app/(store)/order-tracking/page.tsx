@@ -14,7 +14,8 @@ function safeFormatCurrency(amount: number | null | undefined, currency: string 
   const safeCurrency = currency || 'UZS';
   try {
     return formatCurrency(amount, safeCurrency);
-  } catch (error) {
+  } catch (fetchError) {
+    console.error('Format currency error:', fetchError);
     return `${amount?.toLocaleString('uz-UZ')} ${safeCurrency}`;
   }
 }
@@ -258,8 +259,40 @@ function OrderStatusTimeline({ currentStatus }: { currentStatus: string }) {
   );
 }
 
+// Define proper types for order items
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  image?: string;
+}
+
+interface OrderItem {
+  quantity: number;
+  product?: Product;
+}
+
+interface Customer {
+  name?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+}
+
+interface Order {
+  _id: string;
+  orderNumber: string;
+  createdAt: string;
+  total?: number;
+  currency?: string;
+  status?: string;
+  paymentStatus?: string;
+  customer?: Customer;
+  items?: OrderItem[];
+}
+
 function OrdersList({ orderNumber, phone }: { orderNumber?: string; phone?: string }) {
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
@@ -448,7 +481,7 @@ function OrdersList({ orderNumber, phone }: { orderNumber?: string; phone?: stri
                   </h3>
                   
                   <div className="space-y-4 md:space-y-6">
-                    {order.items?.map((item: Record<string, any>, idx: number) => (
+                    {order.items?.map((item, idx: number) => (
                       <div 
                         key={item.product?._id || idx}
                         className="group/item bg-white dark:bg-gray-800 p-3 md:p-6 rounded-lg md:rounded-2xl shadow hover:shadow-lg md:hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 md:hover:-translate-y-1"
