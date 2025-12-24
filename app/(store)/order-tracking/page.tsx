@@ -1,12 +1,11 @@
-// app/order-tracking/page.tsx
+// app/(store)/order-tracking/page.tsx
 'use client';
 
 import { client } from '@/sanity/lib/client';
 import Image from 'next/image';
 import { formatCurrency } from '@/lib/formatCurrency';
-import { Suspense, useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Check, Package, Truck, Home, Search, User, Phone, Mail, MapPin, Download, MessageCircle, Calendar, DollarSign, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Check, Package, Truck, Home, Search, User, Phone, Mail, MapPin, Download, MessageCircle, Calendar, AlertCircle } from 'lucide-react';
 import './order-tracking-styles.css';
 
 // Safe formatCurrency function
@@ -61,8 +60,8 @@ async function getOrders({ orderNumber, phone }: { orderNumber?: string; phone?:
   try {
     const orders = await client.fetch(query, params);
     return orders || [];
-  } catch (error) {
-    console.error('Error fetching orders:', error);
+  } catch (fetchError: unknown) {
+    console.error('Error fetching orders:', fetchError);
     return [];
   }
 }
@@ -96,7 +95,7 @@ function OrderStatusTimeline({ currentStatus }: { currentStatus: string }) {
   ];
 
   const currentStepIndex = statusSteps.findIndex(step => step.key === currentStatus);
-  const stepProgress = Math.max(currentStepIndex + 1, 1); // Minimum 1
+  const stepProgress = Math.max(currentStepIndex + 1, 1);
 
   return (
     <div className="p-4 md:p-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl md:rounded-2xl shadow-lg">
@@ -105,7 +104,6 @@ function OrderStatusTimeline({ currentStatus }: { currentStatus: string }) {
       </h3>
       
       <div className="relative">
-        {/* Progress Line - Hidden on mobile, visible on desktop */}
         <div className="hidden md:block absolute top-6 left-0 w-full h-1.5 md:h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
           <div 
             className="h-full bg-gradient-to-r from-yellow-500 via-blue-500 to-green-500 transition-all duration-1000 ease-out"
@@ -113,7 +111,6 @@ function OrderStatusTimeline({ currentStatus }: { currentStatus: string }) {
           />
         </div>
 
-        {/* Mobile: Vertical Timeline */}
         <div className="md:hidden space-y-8 relative">
           {statusSteps.map((step, index) => {
             const isCompleted = index < stepProgress;
@@ -122,12 +119,10 @@ function OrderStatusTimeline({ currentStatus }: { currentStatus: string }) {
 
             return (
               <div key={step.key} className="flex items-start gap-4 relative">
-                {/* Vertical Line */}
                 {index < statusSteps.length - 1 && (
                   <div className="absolute left-5 top-10 w-0.5 h-12 bg-gray-200 dark:bg-gray-700" />
                 )}
                 
-                {/* Status Circle */}
                 <div className="relative z-10">
                   <div className={`
                     w-10 h-10 md:w-16 md:h-16 rounded-full flex items-center justify-center
@@ -149,7 +144,6 @@ function OrderStatusTimeline({ currentStatus }: { currentStatus: string }) {
                   </div>
                 </div>
 
-                {/* Label */}
                 <div className="flex-1 pt-2">
                   <p className={`font-semibold text-base md:text-lg transition-colors duration-300 ${
                     isActive 
@@ -175,7 +169,6 @@ function OrderStatusTimeline({ currentStatus }: { currentStatus: string }) {
                   )}
                 </div>
 
-                {/* Step Number */}
                 <div className={`
                   absolute top-0 left-7 md:-top-2 md:-right-2 w-5 h-5 md:w-8 md:h-8 
                   rounded-full flex items-center justify-center text-white font-bold 
@@ -189,7 +182,6 @@ function OrderStatusTimeline({ currentStatus }: { currentStatus: string }) {
           })}
         </div>
 
-        {/* Desktop: Horizontal Timeline */}
         <div className="hidden md:flex justify-between relative z-10">
           {statusSteps.map((step, index) => {
             const isCompleted = index < stepProgress;
@@ -198,7 +190,6 @@ function OrderStatusTimeline({ currentStatus }: { currentStatus: string }) {
 
             return (
               <div key={step.key} className="flex flex-col items-center relative">
-                {/* Status Circle */}
                 <div className={`relative mb-4 transition-all duration-500 ${
                   isActive ? 'scale-110' : 'scale-100'
                 }`}>
@@ -222,7 +213,6 @@ function OrderStatusTimeline({ currentStatus }: { currentStatus: string }) {
                   </div>
                 </div>
 
-                {/* Label */}
                 <div className="text-center">
                   <p className={`font-semibold text-sm md:text-lg transition-colors duration-300 ${
                     isActive 
@@ -245,7 +235,6 @@ function OrderStatusTimeline({ currentStatus }: { currentStatus: string }) {
         </div>
       </div>
 
-      {/* Current Status Card - Mobile */}
       <div className="mt-6 md:mt-12 p-4 md:p-6 bg-white dark:bg-gray-800 rounded-lg md:rounded-xl shadow-inner md:hidden">
         <div className="flex items-center justify-between">
           <div>
@@ -272,18 +261,18 @@ function OrderStatusTimeline({ currentStatus }: { currentStatus: string }) {
 function OrdersList({ orderNumber, phone }: { orderNumber?: string; phone?: string }) {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchOrders() {
       setLoading(true);
-      setError(null);
+      setFetchError(null);
       try {
         const fetchedOrders = await getOrders({ orderNumber, phone });
         setOrders(fetchedOrders);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Error fetching orders:', error);
-        setError('Buyurtmalarni yuklashda xatolik yuz berdi.');
+        setFetchError('Buyurtmalarni yuklashda xatolik yuz berdi.');
       } finally {
         setLoading(false);
       }
@@ -311,7 +300,7 @@ function OrdersList({ orderNumber, phone }: { orderNumber?: string; phone?: stri
     );
   }
 
-  if (error) {
+  if (fetchError) {
     return (
       <div className="text-center py-12 md:py-24 fade-in-animation">
         <div className="max-w-md mx-auto bg-gradient-to-br from-red-50 to-white dark:from-red-900/20 dark:to-gray-900 rounded-2xl md:rounded-3xl p-6 md:p-12 shadow-2xl">
@@ -320,7 +309,7 @@ function OrdersList({ orderNumber, phone }: { orderNumber?: string; phone?: stri
           </div>
           <p className="text-xl md:text-3xl font-bold text-red-700 dark:text-red-300">Xatolik</p>
           <p className="text-gray-600 dark:text-gray-400 mt-2 md:mt-6 text-sm md:text-lg">
-            {error}
+            {fetchError}
           </p>
         </div>
       </div>
@@ -336,7 +325,7 @@ function OrdersList({ orderNumber, phone }: { orderNumber?: string; phone?: stri
           </div>
           <p className="text-xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">Buyurtma topilmadi</p>
           <p className="text-gray-500 dark:text-gray-400 mt-2 md:mt-6 text-sm md:text-lg">
-            Kiritilgan ma'lumotlar bilan buyurtma topilmadi.
+            Kiritilgan ma&apos;lumotlar bilan buyurtma topilmadi.
           </p>
           <p className="text-gray-400 dark:text-gray-500 text-xs md:text-base mt-4">
             ✅ Buyurtma raqami: {orderNumber || "Kiritilmagan"}<br/>
@@ -351,10 +340,8 @@ function OrdersList({ orderNumber, phone }: { orderNumber?: string; phone?: stri
     <div className="space-y-8 md:space-y-16 mt-8 md:mt-12 fade-in-up-animation">
       {orders.map((order) => (
         <div key={order._id} className="group">
-          {/* Order Card */}
           <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl md:rounded-3xl shadow-xl md:shadow-2xl overflow-hidden transition-all duration-500 hover:shadow-2xl md:hover:shadow-3xl hover:-translate-y-1 md:hover:-translate-y-2">
             
-            {/* Header */}
             <div className="relative bg-gradient-to-r from-orange-600 via-red-500 to-pink-500 text-white p-4 md:p-10 overflow-hidden">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-8">
                 <div className="flex-1">
@@ -389,24 +376,21 @@ function OrdersList({ orderNumber, phone }: { orderNumber?: string; phone?: stri
                     <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full animate-pulse ${
                       order.paymentStatus === 'paid' ? 'bg-green-300' : 'bg-yellow-300'
                     }`} />
-                    {order.paymentStatus === 'paid' ? "To'landi" : 'Kutilmoqda'}
+                    {order.paymentStatus === 'paid' ? "To&apos;landi" : 'Kutilmoqda'}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Status Timeline */}
             <OrderStatusTimeline currentStatus={order.status || 'processing'} />
 
-            {/* Details Grid */}
             <div className="p-4 md:p-10 grid lg:grid-cols-2 gap-6 md:gap-10">
               
-              {/* Customer Info - Mobile Accordion */}
               <div className="lg:col-span-2 md:lg:col-span-1">
                 <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl md:rounded-2xl shadow-inner p-4 md:p-8">
                   <h3 className="text-lg md:text-3xl font-bold mb-4 md:mb-8 text-gray-800 dark:text-white flex items-center gap-2 md:gap-3">
                     <div className="w-2 h-6 md:w-3 md:h-8 bg-gradient-to-b from-orange-500 to-red-500 rounded-full" />
-                    Yetkazib berish ma'lumotlari
+                    Yetkazib berish ma&apos;lumotlari
                   </h3>
                   <div className="space-y-3 md:space-y-6">
                     <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-lg md:rounded-xl hover:bg-white dark:hover:bg-gray-800 transition-colors">
@@ -414,7 +398,7 @@ function OrdersList({ orderNumber, phone }: { orderNumber?: string; phone?: stri
                       <div className="min-w-0">
                         <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">Ism</p>
                         <p className="text-sm md:text-lg font-semibold text-gray-800 dark:text-white truncate">
-                          {order.customer?.name || 'Noma\'lum'}
+                          {order.customer?.name || 'Noma&apos;lum'}
                         </p>
                       </div>
                     </div>
@@ -424,7 +408,7 @@ function OrdersList({ orderNumber, phone }: { orderNumber?: string; phone?: stri
                       <div className="min-w-0">
                         <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">Telefon</p>
                         <p className="text-sm md:text-lg font-semibold text-gray-800 dark:text-white truncate">
-                          {order.customer?.phone || 'Noma\'lum'}
+                          {order.customer?.phone || 'Noma&apos;lum'}
                         </p>
                       </div>
                     </div>
@@ -456,7 +440,6 @@ function OrdersList({ orderNumber, phone }: { orderNumber?: string; phone?: stri
                 </div>
               </div>
 
-              {/* Products */}
               <div className="lg:col-span-2 md:lg:col-span-1">
                 <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl md:rounded-2xl shadow-inner p-4 md:p-8">
                   <h3 className="text-lg md:text-3xl font-bold mb-4 md:mb-8 text-gray-800 dark:text-white flex items-center gap-2 md:gap-3">
@@ -465,13 +448,12 @@ function OrdersList({ orderNumber, phone }: { orderNumber?: string; phone?: stri
                   </h3>
                   
                   <div className="space-y-4 md:space-y-6">
-                    {order.items?.map((item: any, idx: number) => (
+                    {order.items?.map((item: Record<string, any>, idx: number) => (
                       <div 
                         key={item.product?._id || idx}
                         className="group/item bg-white dark:bg-gray-800 p-3 md:p-6 rounded-lg md:rounded-2xl shadow hover:shadow-lg md:hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 md:hover:-translate-y-1"
                       >
                         <div className="flex items-start md:items-center gap-3 md:gap-6">
-                          {/* Product Image */}
                           <div className="relative flex-shrink-0">
                             {item.product?.image ? (
                               <div className="relative overflow-hidden rounded-lg md:rounded-xl shadow">
@@ -490,10 +472,9 @@ function OrdersList({ orderNumber, phone }: { orderNumber?: string; phone?: stri
                             )}
                           </div>
 
-                          {/* Product Details */}
                           <div className="flex-1 min-w-0">
                             <p className="text-sm md:text-2xl font-bold text-gray-800 dark:text-white truncate">
-                              {item.product?.name || 'Noma\'lum mahsulot'}
+                              {item.product?.name || 'Noma&apos;lum mahsulot'}
                             </p>
                             <p className="text-xs md:text-lg text-gray-600 dark:text-gray-400 mt-1 md:mt-3">
                               {item.quantity || 0} dona × {safeFormatCurrency(item.product?.price || 0, 'UZS')}
@@ -521,12 +502,11 @@ function OrdersList({ orderNumber, phone }: { orderNumber?: string; phone?: stri
               </div>
             </div>
 
-            {/* Footer - Mobile Stacked */}
             <div className="p-4 md:p-8 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border-t border-gray-200 dark:border-gray-700">
               <div className="flex flex-col items-center gap-4">
-                <p  className="text-sm md:text-lg text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                  <MessageCircle  href="/contact" className="w-4 h-4 md:w-5 md:h-5" />
-                  Savollar bo'lsa biz bilan bog'laning
+                <p className="text-sm md:text-lg text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
+                  Savollar bo&apos;lsa biz bilan bog&apos;laning
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
                   <button className="flex-1 px-4 py-3 md:px-8 md:py-4 bg-gradient-to-r from-gray-800 to-gray-900 dark:from-gray-700 dark:to-gray-800 text-white rounded-lg md:rounded-xl font-bold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2">
@@ -575,7 +555,7 @@ function SearchForm({ onSubmit }: { onSubmit: (data: { order: string; phone: str
         </label>
         <div className="text-sm md:text-lg text-gray-500 dark:text-gray-400 flex items-start gap-2">
           <span className="text-lg">💡</span>
-          <span>Buyurtma raqami elektron pochta yoki chekda ko'rsatilgan</span>
+          <span>Buyurtma raqami elektron pochta yoki chekda ko&apos;rsatilgan</span>
         </div>
       </div>
 
@@ -632,7 +612,6 @@ export default function OrderTrackingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto max-w-7xl px-4 py-8 md:py-16">
-        {/* Header */}
         <div className="text-center mb-8 md:mb-20">
           <h1 className="text-3xl md:text-7xl font-black mb-4 md:mb-8 bg-gradient-to-r from-orange-600 via-red-500 to-pink-500 bg-clip-text text-transparent">
             Buyurtmalarni kuzatish
@@ -642,7 +621,6 @@ export default function OrderTrackingPage() {
           </p>
         </div>
 
-        {/* Search Card */}
         <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl md:rounded-3xl shadow-xl md:shadow-3xl p-6 md:p-12 mb-12 md:mb-20 max-w-5xl mx-auto transform transition-all duration-500">
           <div className="text-center mb-6 md:mb-12">
             <div className="inline-flex items-center gap-2 md:gap-4 px-4 py-2 md:px-8 md:py-4 rounded-full bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 mb-4 md:mb-6">
@@ -652,18 +630,17 @@ export default function OrderTrackingPage() {
               </p>
             </div>
             <h2 className="text-xl md:text-4xl font-bold text-gray-800 dark:text-white">
-              Ma'lumotlaringizni kiriting
+              Ma&apos;lumotlaringizni kiriting
             </h2>
           </div>
 
           <SearchForm onSubmit={handleSearch} />
 
           <p className="text-center text-sm md:text-xl text-gray-500 dark:text-gray-400 mt-6 md:mt-12 pt-4 md:pt-8 border-t border-gray-200 dark:border-gray-700">
-            Kamida bitta maydonni to'ldiring
+            Kamida bitta maydonni to&apos;ldiring
           </p>
         </div>
 
-        {/* Results Section */}
         {(searchParams.order || searchParams.phone) ? (
           <OrdersList orderNumber={searchParams.order} phone={searchParams.phone} />
         ) : (
@@ -673,13 +650,13 @@ export default function OrderTrackingPage() {
                 <div className="text-4xl md:text-6xl">📦</div>
               </div>
               <h3 className="text-xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4 md:mb-8">
-                Buyurtma holatini ko'rish uchun qidiruvni boshlang
+                Buyurtma holatini ko&apos;rish uchun qidiruvni boshlang
               </h3>
               <p className="text-sm md:text-2xl text-gray-600 dark:text-gray-400 mb-6 md:mb-12">
-                Yuqoridagi formani to'ldiring va buyurtmangizning joriy holatini ko'ring.
+                Yuqoridagi formani to&apos;ldiring va buyurtmangizning joriy holatini ko&apos;ring.
               </p>
               <div className="inline-flex items-center gap-2 md:gap-4 px-4 py-2 md:px-8 md:py-4 rounded-full bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20">
-                <div className="w-2 h-2 md:w-3 h-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 animate-pulse" />
+                <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 animate-pulse" />
                 <p className="text-sm md:text-xl font-semibold text-gray-700 dark:text-gray-300">
                   Har qanday vaqtda buyurtmangizni kuzatishingiz mumkin
                 </p>
